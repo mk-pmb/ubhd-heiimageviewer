@@ -1,0 +1,4 @@
+
+*.min.css -text
+*.min.umd.cjs -text
+*.svg -text

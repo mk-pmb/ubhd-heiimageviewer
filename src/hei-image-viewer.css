@@ -1,0 +1,370 @@
+/* hei-image-viewer.css*/
+:root {
+  --items-background: #333333;
+  --overview-map-size: 150px;
+  --slider-left: 155px;
+  --hd-rust: #cc0130;
+  --draw-button-grey: #c8c8c8;
+}
+
+.aligned-line-img {
+  background-color: rgba(193, 17, 17, 0.3);
+}
+
+.ol-full-screen {
+  top: .25em;
+  right: .25em;
+}
+
+.ol-zoom {
+  left: auto;
+  right: 2em;
+  top: .25em;
+}
+.ol-zoom-in {
+  float: right;
+}
+.ol-zoom-out {
+  float: left;
+}
+
+.ol-centermap {
+  top: .25em;
+  left: auto;
+  right: 5.4em;
+}
+.ol-centermap:hover path {
+  fill: var(--ol-foreground-color);
+}
+
+.ol-rotate-90 {
+  top: .25em;
+  left: auto;
+  right: 7.25em;
+}
+.ol-rotate-right {
+  float: right;
+}
+.ol-rotate-left {
+  float: left;
+}
+.ol-rotate {
+  top: 1.6em;
+  left: auto;
+  right: 8em;
+}
+
+
+.ol-anno {
+  top: .25em;
+  left: auto;
+  right: 12.725em;
+}
+
+.ol-wheel {
+  top: .25em;
+  left: auto;
+  right: 10.75em;
+}
+
+/* HEIV-DRAW-INDIVIDUALS */
+.heiv-draw-ind {
+  top: 0.25em;
+  left: auto;
+}
+.heiv-draw-ind button:hover {
+  outline: 1px solid black;
+}
+.heiv-draw-ind-active {
+  outline: 1px solid var(--hd-rust);
+  background-color: #c8c8c8;
+}
+.heiv-draw-ind-active:hover {
+  outline: 1px solid var(--hd-rust);
+  background-color: #a0a0a0;
+}
+.heiv-draw-ind-active button {
+  margin: 1px;
+  background-color: var(--draw-button-grey);
+}
+.heiv-draw-ind button:focus {
+  outline: 0px;
+}
+.heiv-draw-ind-active button:hover {
+  outline: 0px;
+  background-color: #a0a0a0;
+}
+.heiv-draw-ind-rectangle {
+  right: 18em;
+}
+.heiv-draw-ind-polygon {
+  right: 16.5em;
+}
+.heiv-draw-ind-circle {
+  right: 15em;
+}
+.heiv-draw-ind-ellipse {
+  right: 13.5em;
+}
+.heiv-draw-ind-line {
+  right: 12em;
+}
+
+
+.heiv-trash {
+  top: .25em;
+  right: 19.75em;
+}
+.heiv-trash-inactive button {
+  color: grey;
+  pointer-events: none;
+}
+.heiv-trash-active button {
+  color: darkred;
+  padding: 0;
+}
+.heiv-trash-active:hover {
+  outline: 1px solid var(--hd-rust);
+  background-color: #a0a0a0;
+}
+.heiv-trash-active:hover button{
+  color: darkred;
+}
+.heiv-trash-active button:focus{
+  color: darkred;
+}
+.heiv-trash-inactive button:focus {
+  color: grey;
+}
+
+.heiv-select {
+  top: .25em;
+  right: 21.5em;
+}
+.heiv-select button.heiv-select-active{
+  background-color: var(--draw-button-grey);
+  outline: 1px solid var(--hd-rust);
+  color: var(--hd-rust);
+}
+
+.heiv-shapedit-transform {
+  top: 1.8em;
+  left: auto;
+  right: 19.5em;
+  background-color: lightgrey;
+  border: solid 1px darkred;
+  padding: 1px;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+
+}
+.heiv-shapedit-transform.hide {
+  opacity: 0;
+}
+.heiv-shapedit-transform button{
+  display: inline-block;
+  margin: 2px 3px 2px 3px;
+  background-color: white;
+  border: none;
+}
+
+.heiv-shapedit-transform button.active{
+  background-color: pink;
+  border: 1px solid darkred;
+}
+
+.ol-openmenu {
+  max-width: 1.5em;
+  transition-property: max-width;
+  transition-duration: 0s;
+  transition-delay: 1s;
+}
+
+.ol-openmenu:hover{
+  max-width: 30em;
+  transition-property: max-width;
+  transition-duration: 0s;
+  transition-delay: 0s;
+}
+
+.ol-openmenu * {
+  z-index: 200;
+}
+
+.ol-openmenu ul {
+  list-style-type: none;
+}
+
+
+.ol-openmenu li.main-item {
+  background-color: var(--items-background);
+  color: lightgrey;
+  cursor: pointer;
+  position: relative;
+
+  /* For transition */
+  /*overflow: hidden;*/
+  height: 30px;
+  padding: 5px 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  white-space: nowrap;
+  transition: 0.5s height cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s padding cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s margin cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s 0.2s color, 0.2s background-color;
+}
+
+.ol-openmenu:not(:hover) li.main-item {
+  visibility: hidden;
+  height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  color: rgba(25, 25, 25, 0);
+  transition: 0.5s 0.1s height, 0.5s 0.1s padding, 0.5s 0.1s margin, 0.3s color, 0.6s visibility;
+  z-index: 50;
+}
+
+.ol-openmenu li.main-item:hover {
+  background-color: #0066cc;
+}
+
+li.main-item ul {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  background-color: var(--items-background);
+  right: 100%;
+  left: auto;
+  padding: 0.2em 1em 0.2em 1em ;
+  border: solid grey 1px;
+
+  max-height: 0;
+  transition: max-height 0.5s;
+
+}
+
+li.main-item:hover ul {
+  visibility: visible;
+  max-height: 20em;
+}
+
+li.main-item input {
+  margin-right: 1em;
+}
+
+
+/* OVERVIEW MAP */
+.ol-overviewmap .ol-overviewmap-map {
+  height: var(--overview-map-size);
+  width: var(--overview-map-size);
+}
+
+.ol-overviewmap:not(.ol-collapsed){
+  background-color: transparent;
+}
+
+
+
+.ol-custom-overviewmap,
+.ol-custom-overviewmap.ol-uncollapsible {
+  bottom: auto;
+  left: 0;
+  right: auto;
+  top: 0;
+}
+
+.ol-custom-overviewmap .ol-overviewmap-box {
+  border: 2px solid red;
+}
+
+.ol-custom-overviewmap:not(.ol-collapsed) button{
+  bottom: auto;
+  left: 0;
+  right: auto;
+  top: 0;
+}
+
+/* ZOOMSLIDER */
+.ol-zoomslider {
+  top: var(--overview-map-size) ;
+  margin-top: 20px;
+  top: var(--overview-map-size) ;
+  margin-top: 20px;
+  width: 16px;
+  height: 100px;
+  padding: 0;
+  box-shadow: 0 0 5px black;
+  border-radius: 7.5px;
+  background-color: rgba(180, 180, 180, 0.4);
+  display: none;
+}
+
+button.ol-zoomslider-thumb{
+  height: 15px;
+  width: 15px;
+  margin: 0;
+  filter: none;
+  /*background-color: rgba(255,69,0,0.6);*/
+  border-radius: 7.5px;
+}
+
+/* HEIV DRAW*/
+.heiv-draw-dropdown {
+  top: .25em;
+  left: auto;
+  right: 17em;
+}
+
+.heiv-draw-dropdown button {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.heiv-draw-dropdown button.heiv-draw-active{
+  background-color: var(--draw-button-grey);
+  outline: 1px solid var(--hd-rust);
+}
+
+.heiv-draw-dropdown-content button.heiv-draw-active {
+  background-color: var(--draw-button-grey);
+  outline: 1px solid var(--hd-rust);
+}
+
+/* HEIV DRAW DROPDOWN */
+.heiv-draw-dropdown {
+  display: none;
+}
+/* Dropdown Content (Hidden by Default) */
+.heiv-draw-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.heiv-draw-dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+/* Change color of dropdown links on hover */
+.heiv-draw-dropdown-content a:hover {background-color: #ddd}
+/* Show the dropdown menu on hover */
+.heiv-dropdown-arrow:hover .heiv-draw-dropdown-content {
+  display: block;
+  width: max-content;
+}
+
+/* TOUCH */
+.ol-touch .ol-control button {
+  font-size: 1em
+}
+
+/* Mobile screen */
+@media screen and (max-width: 500px){
+  .heiv-draw-dropdown {
+    display: block;
+  }
+
+}
