@@ -1,0 +1,15 @@
+
+# Host-specific files
+/@
+/*.@*
+
+
+
+# Auto-generated files not meant to be published
+/dist
+/node_modules
+/tmp.*
+
+
+
+# Unsorted stuff (this section should be empty):
