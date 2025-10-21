@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Simple Layer</title>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="../dist/heiImageViewer.min.css"/>
+</head>
+<body>
+    <h1>Simple Layer</h1>
+    <div>
+        <p>In this example we build on top of "simple-standalone" to display a vector layer on top of the image.</p>
+    <div>
+        <div id="heiImageViewer" class="heiImageViewer"
+             style="width:90%; height: 800px;"></div>
+
+        <script src="../dist/heiImageViewer.base.umd.min.js"></script><script src="../dist/langpack.en_us.min.js"></script>
+        <script>
+            var canvas = document.getElementById("heiImageViewer");
+            if (!canvas) {
+                console.error("No canvas found.")
+            }
+
+            const urls = ["https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015/_image"]
+            const viewer1 = new heiImageViewer.imageViewer({
+                images: urls,
+                container: canvas,
+                name: 'viewer1',
+                });
+
+            let firstLayer = new heiImageViewer.Layer({
+                name: 'example-layer',
+                display: heiImageViewer.variables.ZONES_SHOW_ALL,
+                color: '#a23',
+                features: [
+                    {name: 'feat1',
+                        shapes: [{
+                            format: 'svg',
+                            source: '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1000"><polygon points="483.7890061952788,296.3007934570312 411.44249525983815,450.6687934570312 564.1740183457682,444.23679345703124 483.7890061952788,296.3007934570312"/></svg>',
+                        }]}
+                ]
+            });
+
+            viewer1.initialize().then(()=>{
+                viewer1.addLayer(firstLayer);
+            });
+
+
+        </script>
+    </div>
+</body>
+</html>
