@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Draw Simple Example</title>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="../dist/heiImageViewer.min.css"/>
+
+
+</head>
+<body>
+
+    <h1>Draw Simple Example</h1>
+    <div>
+        <p>Mehr Infos hier: https://anno.ub.uni-heidelberg.de/help/diglit/de/manual.html#zeichnen-von-zonen</p>
+        <div id="heiImageViewer" class="heiImageViewer"
+             style="width:90%; height: 800px;"></div>
+    <script src="../dist/heiImageViewer.base.umd.min.js"></script><script src="../dist/langpack.en_us.min.js"></script>
+    <script>
+        var canvas = document.getElementById("heiImageViewer");
+        if (!canvas) {
+            console.error("No canvas found.")
+        }
+        const urls = ["https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015/_image"]
+
+        const viewer1 = new heiImageViewer.ImageDraw({
+            images: urls,
+            container: canvas,
+            name: 'viewer1',
+        });
+
+        input_layer = new heiImageViewer.Layer({
+            name: 'annotation_layer',
+            display: 'always',
+            color: '#F00',
+        })
+
+
+        viewer1.initialize().then(()=>{
+            viewer1.addDrawLayer(input_layer);
+        });
+
+    </script>
+
+
+</div>
+
+
+</body>
+</html>

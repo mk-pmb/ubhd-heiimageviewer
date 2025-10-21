@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Simple Standalone</title>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="../dist/heiImageViewer.min.css"/>
+</head>
+<body>
+    <h1>Simple Standalone Viewer</h1>
+    <div>
+        <p>In this example we import viewer from the distribution files (lines 9 and 21) and upload an image from an external URL (line 29 onward).</p>
+        <p>Alternativaly, we can import the files from the CDN of the University of Heidelberg, instead of hosting them (See lines 10 and 22).</p></div>
+    <div>
+        <div id="heiImageViewer" class="heiImageViewer"
+             style="width:90%; height: 800px;"></div>
+
+        <script src="../dist/heiImageViewer.base.umd.min.js"></script>
+        <script src="../dist/langpack.en_us.min.js"></script>
+
+        <script>
+            var canvas = document.getElementById("heiImageViewer");
+            if (!canvas) {
+                console.error("No canvas found.")
+            }
+
+            const urls = ["https://digi.ub.uni-heidelberg.de/diglit/cpg389/0015/_image"]
+            const viewer1 = new heiImageViewer.imageViewer({
+                images: urls,
+                container: canvas,
+                name: 'viewer1',
+                });
+
+            viewer1.initialize();
+
+        </script>
+    </div>
+</body>
+</html>
