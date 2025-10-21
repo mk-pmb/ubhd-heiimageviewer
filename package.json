@@ -1,0 +1,48 @@
+{ "name": "heiimageviewer",
+  "version": "0.1.0",
+  "description": "An image viewer for use in websites, developed at the Heidelberg University Library for displaying images of digitized facsimili.",
+
+  "author": "Heidelberg University Library (https://www.ub.uni-heidelberg.de/)",
+  "homepage": "https://github.com/UB-Heidelberg/heiImageViewer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UB-Heidelberg/heiImageViewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/UB-Heidelberg/heiImageViewer/issues"
+  },
+  "contributors": [
+    "Gustavo Riva (https://github.com/GusRiva)",
+    "M.K. (https://github.com/mk-pmb)"
+  ],
+
+  "private": false, "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "directories": { "test": "test" },
+  "scripts": {
+    "test": "echo 'No tests yet!' >&2; exit 2"
+  },
+  "eslintConfig": { "extends": "nodejs-pmb",
+    "env": { "browser": true }
+  },
+
+  "dependencies": {
+    "@webcomponents/shadydom": "^1.11.0",
+    "get-root-node-polyfill": "^1.0.0",
+    "ol": "^9.0.0",
+    "ol-ext": "^4.0.18",
+    "rosetta": "^1.1.0"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "docdash": "^2.0.2",
+    "jsdoc": "~4.0.2",
+    "jsdoc-to-markdown": "^8.0.0",
+    "prettier": "3.2.5",
+    "vite": "^7.1.10"
+  },
+
+
+  "engines": { "npm": ">=7.0.0", "node": ">=16.0.0" }
+}
