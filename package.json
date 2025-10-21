@@ -21,6 +21,7 @@
   "main": "src/index.js",
   "directories": { "test": "test" },
   "scripts": {
+    "build": "./build/build.sh",
     "test": "echo 'No tests yet!' >&2; exit 2"
   },
   "eslintConfig": { "extends": "nodejs-pmb",
