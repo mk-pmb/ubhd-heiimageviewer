@@ -1,33 +1,33 @@
 // variables.js
-import {createBox} from "ol/interaction/Draw.js";
-import {ellipseGeometryFunction} from "./parseShapes.js";
+import { createBox } from 'ol/interaction/Draw.js';
+import { ellipseGeometryFunction } from './parseShapes.js';
 
 
 const shapeDefs = {
   Rectangle: {
     shortName: 'rect',
     drawType: 'Circle',
-    geometryFunction: createBox()
+    geometryFunction: createBox(),
   },
   Polygon: {
     shortName: 'polygon',
     drawType: 'Polygon',
-    geometryFunction: ''
+    geometryFunction: '',
   },
   Circle: {
     shortName: 'circle',
     drawType: 'Circle',
-    geometryFunction: ''
+    geometryFunction: '',
   },
   Ellipse: {
     shortName: 'ellipse',
     drawType: 'Circle',
-    geometryFunction: ellipseGeometryFunction
+    geometryFunction: ellipseGeometryFunction,
   },
   Line: {
     shortName: 'line',
     drawType: 'LineString',
-    geometryFunction: ''
+    geometryFunction: '',
   },
 };
 

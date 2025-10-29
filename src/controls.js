@@ -1,12 +1,12 @@
-  // controls.js
-import { containsCoordinate, getCenter } from "ol/extent";
-import {Collection} from "ol";
-import {Control, FullScreen, Zoom} from "ol/control";
-import {Draw} from "ol/interaction";
-import {noModifierKeys, primaryAction} from "ol/events/condition.js";
+// controls.js
+import { containsCoordinate, getCenter } from 'ol/extent';
+import { Collection } from 'ol';
+import { Control, FullScreen, Zoom } from 'ol/control';
+import { Draw } from 'ol/interaction';
+import { noModifierKeys, primaryAction } from 'ol/events/condition.js';
 
-import {createStyle} from "./Layer.js";
-import i18n from "./transl.js";
+import { createStyle } from './Layer.js';
+import i18n from './transl.js';
 
 import logger from './logger.js';
 import shapeDefs from './shapeDefs.js';
@@ -50,7 +50,7 @@ export class RotateControl extends Control {
     const element = document.createElement('div');
 
     super({
-      element: element,
+      element,
       target: options.target,
     });
 
@@ -63,7 +63,7 @@ export class RotateControl extends Control {
   handleRotate(clockwise) {
     const view = this.getMap().getView();
     const rotation = view.getRotation();
-    var newRotation = rotation;
+    let newRotation = rotation;
     if (clockwise) {
       newRotation = rotation + halfPi;
     } else {
@@ -75,7 +75,7 @@ export class RotateControl extends Control {
     }
     view.setRotation(newRotation);
     if (Math.abs(newRotation) > 6.15) {
-      const rotate = document.getElementsByClassName("ol-rotate-reset");
+      const rotate = document.getElementsByClassName('ol-rotate-reset');
       rotate[0].click();
     }
   }
@@ -91,14 +91,14 @@ export class CenterMapControl extends Control {
     const element = document.createElement('div');
 
     super({
-      element: element,
+      element,
       target: options.target,
     });
 
     const btn = i18n.buttonIconAndLabel('centerInViewport');
     this.button = btn;
 
-    element.className = "ol-centermap ol-unselectable ol-control";
+    element.className = 'ol-centermap ol-unselectable ol-control';
     element.appendChild(btn);
 
     bindEventHandler(btn, this, 'centerMap', options);
@@ -111,8 +111,8 @@ export class CenterMapControl extends Control {
     const view = map.getView();
 
     view.centerOn(getCenter(options.extent), size, [size[0] / 2, size[1] / 2]);
-    /*view.setZoom(0);*/
-    view.setResolution(map.get("fullResolution"));
+    /* view.setZoom(0); */
+    view.setResolution(map.get('fullResolution'));
   }
 }
 
@@ -124,19 +124,19 @@ export class WheelControl extends Control {
   constructor(opt_options) {
     const options = opt_options || {};
     const initialWheelMode = options.wheelMode || variables.MW_ZOOM;
-    const element = document.createElement("div");
+    const element = document.createElement('div');
     super({
-      element: element,
+      element,
       target: options.target,
     });
-    const viewer = options.viewer;
-    element.className = "ol-wheel ol-unselectable ol-control";
-    element.style.backgroundColor = "inherit";
+    const { viewer } = options;
+    element.className = 'ol-wheel ol-unselectable ol-control';
+    element.style.backgroundColor = 'inherit';
 
-    const button = document.createElement("button");
-    button.style.marginLeft = "auto";
+    const button = document.createElement('button');
+    button.style.marginLeft = 'auto';
     button.className = 'mousewheel-button';
-    const openMenuLabel = document.createElement("span");
+    const openMenuLabel = document.createElement('span');
     button.appendChild(openMenuLabel);
     element.appendChild(button);
 
@@ -175,10 +175,10 @@ export class myZoom extends Zoom {
 
   approachArrays(a, b, factor) {
     if (a.length !== b.length) {
-      throw new Error("Arrays must have the same length");
+      throw new Error('Arrays must have the same length');
     }
-    let difference = a.map((elementA, index) => b[index] - elementA);
-    let result = a.map(
+    const difference = a.map((elementA, index) => b[index] - elementA);
+    const result = a.map(
       (elementA, index) => elementA + difference[index] * factor,
     );
     return result;
@@ -210,7 +210,7 @@ export class myZoom extends Zoom {
           view.cancelAnimations();
         }
         view.animate({
-          center: center,
+          center,
           zoom: newZoom,
           duration: this.duration_,
         });
@@ -235,7 +235,7 @@ export class myFullScreen extends FullScreen {
 export class DrawBase extends Control {
   constructor(opt_options) {
     const options = opt_options || {};
-    const shape = options.shape;
+    const { shape } = options;
     if (!shape) { throw new Error('No shape defined for draw button'); }
 
     const element = document.createElement('div');
@@ -252,25 +252,25 @@ export class DrawBase extends Control {
     element.appendChild(button);
 
     super({
-      element: element,
+      element,
       target: options.target,
-    })
+    });
     this.shape = shape;
     this.button = button;
     this.active = false;
     this.drawFeatNum = 1;
 
-    button.addEventListener('click', (e)=>{
+    button.addEventListener('click', (e) => {
       const btn = e.currentTarget;
       const map = this.getMap();
-      const draw = map.get("draw");
-      if (draw){
+      const draw = map.get('draw');
+      if (draw) {
         map.removeInteraction(draw);
       }
       this.active ? this.deactivate() : this.activate(shape);
-      if (!this.active){
-        map.set("draw", null);
-        const selectControls = map.get("selectControls");
+      if (!this.active) {
+        map.set('draw', null);
+        const selectControls = map.get('selectControls');
         for (const selectCtrl of selectControls) {
           selectCtrl.activate();
         }
@@ -278,31 +278,32 @@ export class DrawBase extends Control {
     });
   }
 
-  activate(shape){
-    const map = this.getMap()
-    for (const ctrl of map.get("drawControls")) {
+  activate(shape) {
+    const map = this.getMap();
+    for (const ctrl of map.get('drawControls')) {
       ctrl.deactivate();
     }
     this.active = true;
-    this.element.classList.add("heiv-draw-ind-active");
+    this.element.classList.add('heiv-draw-ind-active');
     this.drawFeatNum = this.activateDraw(shape, map, this.drawFeatNum);
-    for (const selectCtrl of map.get("selectControls")) {
+    for (const selectCtrl of map.get('selectControls')) {
       selectCtrl.deactivate();
     }
 
   }
-  deactivate(){
+
+  deactivate() {
     this.active = false;
-    this.element.classList.remove("heiv-draw-ind-active");
+    this.element.classList.remove('heiv-draw-ind-active');
   }
 
 
-  activateDraw(activeShape, map, drawFeatNum){
+  activateDraw(activeShape, map, drawFeatNum) {
     const activeShapeDict = shapeDefs[activeShape];
-    const drawSource = map.get("drawSource");
-    const layer = map.get("drawLayer");
-    const heiv = map.get("heiv");
-    const drawType = activeShapeDict.drawType;
+    const drawSource = map.get('drawSource');
+    const layer = map.get('drawLayer');
+    const heiv = map.get('heiv');
+    const { drawType } = activeShapeDict;
     const shapeType = activeShapeDict.shortName;
     heiv.deselectAll();
 
@@ -311,34 +312,34 @@ export class DrawBase extends Control {
       type: drawType,
       geometryFunction: activeShapeDict.geometryFunction,
       stopClick: true,
-      condition: (e) => noModifierKeys(e) && primaryAction(e)
+      condition: e => noModifierKeys(e) && primaryAction(e),
     });
-    draw.on("drawend", (e) => {
+    draw.on('drawend', (e) => {
       drawFeatNum += 1;
       this.drawFeatNum = drawFeatNum;
-      const feature = e.feature;
-      const color = layer.get("color");
+      const { feature } = e;
+      const color = layer.get('color');
       const style = createStyle(color, 0.1);
-      if (feature.get('modifyGeometry')){
+      if (feature.get('modifyGeometry')) {
         style.setGeometry(function (feature) {
           const modifyGeometry = feature.get('modifyGeometry');
           return modifyGeometry ? modifyGeometry.geometry : feature.getGeometry();
-        })
+        });
       }
       feature.setStyle(style);
-      feature.id_ = "draw_" + activeShape + '_' + drawFeatNum.toString();
-      feature.set("properties", {
-        color: color,
-        layerName: layer.get("name"),
-        type: shapeType
+      feature.id_ = 'draw_' + activeShape + '_' + drawFeatNum.toString();
+      feature.set('properties', {
+        color,
+        layerName: layer.get('name'),
+        type: shapeType,
       });
       heiv.pointerMoveRefresh();
-      /*heiv.triggerEvent('draw:end');*/
+      /* heiv.triggerEvent('draw:end'); */
     });
 
     map.addInteraction(draw);
-    map.set("draw", draw);
-    return drawFeatNum
+    map.set('draw', draw);
+    return drawFeatNum;
 
   }
 
@@ -348,7 +349,7 @@ export class DrawBase extends Control {
 
 
 export class SelectMode extends Control {
-  constructor(opt_options){
+  constructor(opt_options) {
     const button = i18n.buttonIconAndLabel('selectShape');
     const element = document.createElement('div');
     element.className = 'heiv-select ol-control';
@@ -356,30 +357,30 @@ export class SelectMode extends Control {
     element.appendChild(button);
 
     super({
-      element: element,
+      element,
       target: options.target,
-    })
+    });
 
-    this.button = button
+    this.button = button;
     this.active = false;
 
-    button.addEventListener('click', ()=> {
+    button.addEventListener('click', () => {
       const map = this.getMap();
       const active = !this.active;
       this.active = active;
       /* Remove draw and manage the button color and states */
-      let draw = map.get("draw");
+      const draw = map.get('draw');
       if (draw) {
         map.removeInteraction(draw);
       }
-      map.set("draw", null);
+      map.set('draw', null);
 
-      for (const drawCtrl of map.get("drawControls")) {
-        drawCtrl.deactivate()
+      for (const drawCtrl of map.get('drawControls')) {
+        drawCtrl.deactivate();
       }
 
       if (!active) {
-        this.deactivate()
+        this.deactivate();
       } else {
         this.activate();
       }
@@ -387,23 +388,23 @@ export class SelectMode extends Control {
     });
   }
 
-  activate(){
+  activate() {
     this.active = true;
-    this.button.classList.remove("heiv-select-inactive");
-    this.button.classList.add("heiv-select-active");
+    this.button.classList.remove('heiv-select-inactive');
+    this.button.classList.add('heiv-select-active');
     const map = this.getMap();
-    const heiv = map.get("heiv");
+    const heiv = map.get('heiv');
     heiv.activateShapedit();
   }
 
-  deactivate(){
+  deactivate() {
     this.active = false;
-    this.button.classList.add("heiv-select-inactive");
-    this.button.classList.remove("heiv-select-active");
-    /*this.trashElement.style.visibility = "hidden";*/
+    this.button.classList.add('heiv-select-inactive');
+    this.button.classList.remove('heiv-select-active');
+    /* this.trashElement.style.visibility = "hidden"; */
 
     const map = this.getMap();
-    const heiv = map.get("heiv");
+    const heiv = map.get('heiv');
     heiv.deselectAll();
     heiv.shapeTransformControl.deactivate();
   }
@@ -420,28 +421,28 @@ export class RemoveFeature extends Control {
     element.appendChild(button);
 
     super({
-      element: element,
+      element,
       target: options.target,
-    })
+    });
 
 
-    button.addEventListener('click', (e)=>{
+    button.addEventListener('click', (e) => {
       const map = this.getMap();
-      const heiv = map.get("heiv");
+      const heiv = map.get('heiv');
       heiv.deleteSelectedFeatures();
-      /*this.deactivate();*/
-    })
+      /* this.deactivate(); */
+    });
   }
 
-  activate(){
-    this.element.classList.remove("heiv-trash-inactive");
-    this.element.classList.add("heiv-trash-active");
-    this.element.style.pointerEvents = 'auto'
+  activate() {
+    this.element.classList.remove('heiv-trash-inactive');
+    this.element.classList.add('heiv-trash-active');
+    this.element.style.pointerEvents = 'auto';
   }
 
-  deactivate(){
-    this.element.classList.remove("heiv-trash-active");
-    this.element.classList.add("heiv-trash-inactive");
+  deactivate() {
+    this.element.classList.remove('heiv-trash-active');
+    this.element.classList.add('heiv-trash-inactive');
   }
 
 }
@@ -455,27 +456,27 @@ export class ShapeTransform extends Control {
     self.buttonTransform = buttonTransform;
     const buttonModify = i18n.buttonIconAndLabel('editVertices');
     buttonModify.classList.add('heiv-shapedit-modify');
-    self.buttonModify = buttonModify ;
+    self.buttonModify = buttonModify;
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind ol-control heiv-shapedit-transform';
     element.appendChild(buttonTransform);
     element.appendChild(buttonModify);
 
     super({
-      element: element,
+      element,
       target: options.target,
-    })
+    });
     this.active = false;
 
     bindEventHandler(buttonTransform, this, 'activate', 'transform');
     bindEventHandler(buttonModify, this, 'activate', 'modify');
   }
 
-  activate(type){
+  activate(type) {
     this.element.classList.remove('hide');
     const map = this.getMap();
     const heiv = map.get('heiv');
-    if (type == 'transform'){
+    if (type == 'transform') {
       map.removeInteraction(heiv.selectShape);
       map.removeInteraction(heiv.modifyShape);
       map.removeInteraction(heiv.translateShape);
@@ -485,7 +486,7 @@ export class ShapeTransform extends Control {
       self.buttonModify.classList.remove('active');
       heiv.modifyType = 'transform';
 
-    } else if (type == 'modify'){
+    } else if (type == 'modify') {
       heiv.selectedFeature.extend(heiv.transformShape.getFeatures().getArray());
       map.removeInteraction(heiv.transformShape);
       map.addInteraction(heiv.modifyShape);
@@ -496,20 +497,21 @@ export class ShapeTransform extends Control {
       heiv.modifyType = 'modify';
 
     } else {
-      clog(`Invalid value for modifyType: ${heiv.modifyType}`)
+      clog(`Invalid value for modifyType: ${heiv.modifyType}`);
     }
 
   }
 
 
-  deactivate(){
+  deactivate() {
     const map = this.getMap();
-    const heiv = map.get("heiv");
+    const heiv = map.get('heiv');
     map.removeInteraction(heiv.transformShape);
     map.removeInteraction(heiv.selectShape);
     map.removeInteraction(heiv.modifyShape);
     map.removeInteraction(heiv.translate);
     heiv.transformShape.setSelection(new Collection());
     heiv.selectedFeature.clear();
-    this.element.classList.add('hide');  }
+    this.element.classList.add('hide');
+  }
 }

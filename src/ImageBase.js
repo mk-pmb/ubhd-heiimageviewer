@@ -1,25 +1,25 @@
-//src/ImageViewer.js
-import {Collection, View} from "ol";
-import OlMap from "ol/Map.js";
-import {OverviewMap, ZoomSlider} from "ol/control";
-import {defaults as defaultInteractions, MouseWheelZoom} from 'ol/interaction';
-import VectorLayer from "ol/layer/Vector.js";
-import VectorSource from "ol/source/Vector.js";
-import ImageLayer from "ol/layer/Image.js";
-import Static from "ol/source/ImageStatic.js";
-import {Projection} from "ol/proj.js";
-import {containsCoordinate, getCenter, intersects} from "ol/extent.js";
-import {IIIFInfo} from "ol/format.js";
-import {IIIF} from "ol/source.js";
-import TileLayer from "ol/layer/Tile.js";
+// src/ImageViewer.js
+import { Collection, View } from 'ol';
+import OlMap from 'ol/Map.js';
+import { OverviewMap, ZoomSlider } from 'ol/control';
+import { defaults as defaultInteractions, MouseWheelZoom } from 'ol/interaction';
+import VectorLayer from 'ol/layer/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
+import ImageLayer from 'ol/layer/Image.js';
+import Static from 'ol/source/ImageStatic.js';
+import { Projection } from 'ol/proj.js';
+import { containsCoordinate, getCenter, intersects } from 'ol/extent.js';
+import { IIIFInfo } from 'ol/format.js';
+import { IIIF } from 'ol/source.js';
+import TileLayer from 'ol/layer/Tile.js';
 
 import './hei-image-viewer.css';
 
-import {CenterMapControl, myFullScreen, myZoom, RotateControl, WheelControl} from "./controls.js";
-import {fade} from "./fade.js";
-import {visibilityBaseStyle, visibilityStrongStyle} from "./Layer.js";
-import i18n from "./transl.js";
-import parseShapes from "./parseShapes.js";
+import { CenterMapControl, myFullScreen, myZoom, RotateControl, WheelControl } from './controls.js';
+import { fade } from './fade.js';
+import { visibilityBaseStyle, visibilityStrongStyle } from './Layer.js';
+import i18n from './transl.js';
+import parseShapes from './parseShapes.js';
 import variables from './variables.js';
 
 
@@ -33,7 +33,9 @@ import variables from './variables.js';
  * */
 class ImageBase {
   heiViewerLayers = [];
+
   imageLayers = [];
+
   maxZoom = 8;
   /**
    * Create and instance of the viewer on an HTML element.
@@ -86,17 +88,17 @@ class ImageBase {
       }),
       controls: [],
     });
-    this.map.set("heiv", this);
+    this.map.set('heiv', this);
   }
 
   async #fetchIIIFInfo(imageInfoUrl) {
     try {
       const response = await fetch(imageInfoUrl);
       const imageInfo = await response.json();
-      let iiifOptions = new IIIFInfo(imageInfo).getTileSourceOptions();
+      const iiifOptions = new IIIFInfo(imageInfo).getTileSourceOptions();
 
       if (iiifOptions === undefined || iiifOptions.version === undefined) {
-        console.warn("Data seems to be no valid IIIF image information.");
+        console.warn('Data seems to be no valid IIIF image information.');
         return;
       }
 
@@ -107,102 +109,101 @@ class ImageBase {
       });
       this.extent = iiifTileSource.getTileGrid().getExtent();
       this.projection = new Projection({
-        code: "inverted",
-        units: "pixels",
+        code: 'inverted',
+        units: 'pixels',
         extent: this.extent,
       });
       const imgLayer = new TileLayer();
       imgLayer.setSource(iiifTileSource);
       return imgLayer;
     } catch (error) {
-      console.warn("Could not read data from URL: " + error);
+      console.warn('Could not read data from URL: ' + error);
     }
   }
 
   async  initialize() {
-    let images = this.images;
+    const { images } = this;
     /* IIIF ? */
-    if (images.length == 1 && images[0].endsWith("info.json")) {
+    if (images.length == 1 && images[0].endsWith('info.json')) {
       const imageInfoUrl = images[0];
       return this.#fetchIIIFInfo(imageInfoUrl).then((imgLayer) => {
         this.imageLayers.push(imgLayer);
         this.createViewer();
       });
-    } else {
-      /* NORMAL IMG URL */
-      if (null == this.sizes) {
-        this.sizes = await this.#checkSizes();
-      }
-      try {
-        if (this.sizes.length != images.length) throw 1;
-      } catch (e) {
-        console.error("The sizes and images arrays must be the same length");
-        return;
-      }
-
-      /* Sort the images from smallest to biggest */
-      const zipped = images.map((url, index) => ({
-        url,
-        size: this.sizes[index],
-      }));
-      zipped.sort((a, b) => a.size[0] - b.size[0]);
-      this.images = zipped.map((item) => item.url);
-      this.sizes = zipped.map((item) => item.size);
-      const bigImg = this.sizes.slice(-1);
-      const image_width = bigImg[0][0];
-      const image_height = bigImg[0][1];
-
-      const extent = (this.extent = [0, -image_height, image_width, 0]); // Format to get 0,0 at top left corner
-      const projection = (this.projection = new Projection({
-        code: "inverted",
-        units: "pixels",
-        extent: extent,
-      }));
-
-      /* Create Image Layers */
-      for (let i = 0; i < this.images.length; i++) {
-        const source = new Static({
-          url: this.images[i],
-          projection: projection,
-          imageExtent: extent,
-        });
-        if (i == 0) {
-          this.overviewLayer = new ImageLayer({
-            source: source,
-          });
-        }
-        const imgLayer = new ImageLayer({
-          source: source,
-          minZoom: i - 0.1,
-          zIndex: i,
-        });
-        this.imageLayers.push(imgLayer);
-      }
-      return this.createViewer();
     }
+    /* NORMAL IMG URL */
+    if (this.sizes == null) {
+      this.sizes = await this.#checkSizes();
+    }
+    try {
+      if (this.sizes.length != images.length) throw 1;
+    } catch (e) {
+      console.error('The sizes and images arrays must be the same length');
+      return;
+    }
+
+    /* Sort the images from smallest to biggest */
+    const zipped = images.map((url, index) => ({
+      url,
+      size: this.sizes[index],
+    }));
+    zipped.sort((a, b) => a.size[0] - b.size[0]);
+    this.images = zipped.map(item => item.url);
+    this.sizes = zipped.map(item => item.size);
+    const bigImg = this.sizes.slice(-1);
+    const image_width = bigImg[0][0];
+    const image_height = bigImg[0][1];
+
+    const extent = (this.extent = [0, -image_height, image_width, 0]); // Format to get 0,0 at top left corner
+    const projection = (this.projection = new Projection({
+      code: 'inverted',
+      units: 'pixels',
+      extent,
+    }));
+
+    /* Create Image Layers */
+    for (let i = 0; i < this.images.length; i++) {
+      const source = new Static({
+        url: this.images[i],
+        projection,
+        imageExtent: extent,
+      });
+      if (i == 0) {
+        this.overviewLayer = new ImageLayer({
+          source,
+        });
+      }
+      const imgLayer = new ImageLayer({
+        source,
+        minZoom: i - 0.1,
+        zIndex: i,
+      });
+      this.imageLayers.push(imgLayer);
+    }
+    return this.createViewer();
+
   }
 
   fail(why) {
     if (!why.message) { this.fail({ message: why }); }
     const self = this;
     const err = Object.assign(new Error(why.message), why, {
-      getAffectedInstance() { return self; }
+      getAffectedInstance() { return self; },
     });
     throw err;
   }
 
   async #checkSizes() {
     const promises = this.images.map(
-      (url) =>
-        new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            const imgSize = [img.naturalWidth, img.naturalHeight];
-            resolve(imgSize);
-          };
-          img.onerror = (err) => reject(err);
-          img.src = url;
-        }),
+      url => new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const imgSize = [img.naturalWidth, img.naturalHeight];
+          resolve(imgSize);
+        };
+        img.onerror = err => reject(err);
+        img.src = url;
+      }),
     );
     return Promise.all(promises);
   }
@@ -210,18 +211,18 @@ class ImageBase {
   createViewer() {
     /* Set global css properties for the overview map and zoom slider based on the desired size */
     document.documentElement.style.setProperty(
-      "--overview-map-size",
-      this.overviewMapSize + "px",
+      '--overview-map-size',
+      this.overviewMapSize + 'px',
     );
     document.documentElement.style.setProperty(
-      "--slider-left",
-      this.overviewMapSize + 5 + "px",
+      '--slider-left',
+      this.overviewMapSize + 5 + 'px',
     );
-    const map = this.map;
+    const { map } = this;
     map.setLayers([...this.imageLayers]);
 
     /* Make the container a div inside the once selected by the user */
-    const containerSub = document.createElement('div')
+    const containerSub = document.createElement('div');
     containerSub.style.backgroundColor = '#666666';
     containerSub.style.width = '100%';
     containerSub.style.height = '100%';
@@ -233,11 +234,11 @@ class ImageBase {
     const initialView = this.createInitialView(this.resolution);
     map.setView(initialView);
 
-    /* INTERACTIONS*/
+    /* INTERACTIONS */
     const selfObject = this;
     const variableWheel = new MouseWheelZoom({
-      condition: function (e) {
-        if (e.type != "wheel") {
+      condition(e) {
+        if (e.type != 'wheel') {
           return;
         }
         if (selfObject.wheelMode == variables.MW_VERTICAL) {
@@ -267,7 +268,7 @@ class ImageBase {
       new myFullScreen(),
       new ZoomSlider(),
       new RotateControl(),
-      new CenterMapControl({ extent: this.extent}),
+      new CenterMapControl({ extent: this.extent }),
       new myZoom({
         delta: 0.5,
         imageExtent: this.extent,
@@ -284,7 +285,7 @@ class ImageBase {
       Math.abs(this.extent[1]),
       Math.abs(this.extent[2]),
     ) / this.overviewMapSize;
-    const overviewMapControl= new OverviewMap({
+    const overviewMapControl = new OverviewMap({
       className: 'ol-overviewmap ol-custom-overviewmap',
       layers: [this.overviewLayer],
       label: i18n.buttonIconAndLabel('overviewMapVisible', 'span'),
@@ -300,29 +301,30 @@ class ImageBase {
     });
     this.overviewMapControl = overviewMapControl;
     map.addControl(overviewMapControl);
-    /* still handling overview map...*/
+    /* still handling overview map... */
     const overvmap = this.container.getElementsByClassName('ol-custom-overviewmap')[0];
     const overviewCanvas = overvmap.querySelector('.ol-overviewmap-map');
     const overviewButton = overvmap.querySelector('button');
     const zoomslider =  this.container.getElementsByClassName('ol-zoomslider')[0];
 
-    zoomslider.addEventListener("mouseover", (e) => {
+    zoomslider.addEventListener('mouseover', (e) => {
       overviewPreserve();
     });
-    zoomslider.addEventListener("mouseleave", (e) => {
+    zoomslider.addEventListener('mouseleave', (e) => {
       overviewPreserve();
       overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
     });
 
-    let overviewMapTimer, zoomslideTimer, prevPos;
-    map.on("movestart", () => {
+    let overviewMapTimer; let zoomslideTimer; let
+      prevPos;
+    map.on('movestart', () => {
       prevPos = map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }
       overviewPreserve();
     });
 
-    map.on("moveend", (m) => {
+    map.on('moveend', (m) => {
       const view = map.getView();
       const mapviewport = view.calculateExtent(map.getSize());
       if (!intersects(mapviewport, this.extent)) {
@@ -335,22 +337,22 @@ class ImageBase {
     });
     const selfO = this;
     overviewButton.onclick = function () {
-      overviewCanvas.style.visibility = "hidden";
-      zoomslider.style.visibility = "hidden";
+      overviewCanvas.style.visibility = 'hidden';
+      zoomslider.style.visibility = 'hidden';
     };
 
-    overviewMapControl.getOverviewMap().on("pointerdrag", overviewPreserve);
-    overviewMapControl.getOverviewMap().on("click", overviewPreserve);
+    overviewMapControl.getOverviewMap().on('pointerdrag', overviewPreserve);
+    overviewMapControl.getOverviewMap().on('click', overviewPreserve);
     function overviewPreserve() {
       clearTimeout(overviewMapTimer);
       clearTimeout(zoomslideTimer);
-      overviewCanvas.style.visibility = "visible";
+      overviewCanvas.style.visibility = 'visible';
       overviewCanvas.style.opacity = 1;
-      overviewCanvas.parentElement.style.borderBottom = "1px solid black";
-      overviewCanvas.parentElement.style.borderRight = "1px solid black";
+      overviewCanvas.parentElement.style.borderBottom = '1px solid black';
+      overviewCanvas.parentElement.style.borderRight = '1px solid black';
       zoomslider.style.opacity = 1;
-      zoomslider.style.display = "block";
-      zoomslider.style.visibility = "visible";
+      zoomslider.style.display = 'block';
+      zoomslider.style.visibility = 'visible';
     }
 
     this.hoveredFeatures = [];
@@ -358,7 +360,7 @@ class ImageBase {
     this.pointerMoveRefresh();
     /* Unhighlight features when leaving canvas */
     const viewport = this.map.getViewport();
-    viewport.addEventListener("mouseout", (e) => {
+    viewport.addEventListener('mouseout', (e) => {
       for (const feat of this.hoveredFeatures) {
         this.unhighlightFeature(feat.id_);
         this.hoveredFeatures = [];
@@ -371,14 +373,14 @@ class ImageBase {
     this.updateInteractions();
 
     /* Return the viewer */
-    map.set("heiv", this);
+    map.set('heiv', this);
 
   }
 
   pointerMoveRefresh() {
-    let selectedFeature = this.selectedFeature;
-    let selfObject = this;
-    this.map.on("pointermove", (e) => {
+    const { selectedFeature } = this;
+    const selfObject = this;
+    this.map.on('pointermove', (e) => {
       for (let i = 0; i < this.hoveredFeatures.length; i++) {
         const hoveredFeature = this.hoveredFeatures[i];
         if (hoveredFeature !== null) {
@@ -391,11 +393,10 @@ class ImageBase {
           if (isSelected == true) {
             continue;
           }
-          const color = hoveredFeature.get("properties").color;
-          let correspLayerName = hoveredFeature.get("properties").layerName;
-          const correspLayer =
-            selfObject.#findFeatureLayer(correspLayerName)[0];
-          const display = correspLayer.display;
+          const { color } = hoveredFeature.get('properties');
+          const correspLayerName = hoveredFeature.get('properties').layerName;
+          const correspLayer =            selfObject.#findFeatureLayer(correspLayerName)[0];
+          const { display } = correspLayer;
           hoveredFeature.setStyle(visibilityBaseStyle(display, color));
         }
       }
@@ -414,32 +415,33 @@ class ImageBase {
         if (isSelected == true) {
           return;
         }
-        const color = f.get("properties").color;
-        let correspLayerName = f.get("properties").layerName;
+        const { color } = f.get('properties');
+        const correspLayerName = f.get('properties').layerName;
         const correspLayer = selfObject.#findFeatureLayer(correspLayerName)[0];
-        const display = correspLayer.display;
+        const { display } = correspLayer;
         f.setStyle(visibilityStrongStyle(display, color));
         selfObject.hoveredFeatures.push(f);
-      }, {hitTolerance: 5});
+      }, { hitTolerance: 5 });
     });
   }
 
   #createChangeEvents() {
-    this.map.getView().on("change", () => {
-      this.triggerEvent("change:view");
+    this.map.getView().on('change', () => {
+      this.triggerEvent('change:view');
     });
-    this.map.getView().on("change:rotation", () => {
-      this.triggerEvent("change:view");
+    this.map.getView().on('change:rotation', () => {
+      this.triggerEvent('change:view');
     });
     const selfO = this;
     this.map.getControls().forEach((c) => {
       if (c instanceof WheelControl || c instanceof OverviewMap) {
-        c.element.addEventListener("click", () => {
-          selfO.triggerEvent("change:view");
+        c.element.addEventListener('click', () => {
+          selfO.triggerEvent('change:view');
         });
       }
     });
   }
+
   on(event, callback) {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
@@ -447,7 +449,7 @@ class ImageBase {
     this.listeners[event].push(callback);
   }
 
-  triggerEvent(event, data=null) {
+  triggerEvent(event, data = null) {
     if (this.listeners[event]) {
       this.listeners[event].forEach((callback) => {
         callback(data);
@@ -461,10 +463,10 @@ class ImageBase {
    * @param {function} outFeature - Leave feature.
    * */
   addHoverListener(inFeature, outFeature) {
-    let enterF = [],
-      leaveF = [];
-    const map = this.map;
-    map.on("pointermove", function (e) {
+    let enterF = [];
+    let leaveF = [];
+    const { map } = this;
+    map.on('pointermove', function (e) {
       const featuresAtPixel = map.getFeaturesAtPixel(e.pixel);
       const numFeat = featuresAtPixel.length;
       for (let i = 0; i < numFeat; i++) {
@@ -474,11 +476,11 @@ class ImageBase {
           inFeature(f);
         }
       }
-      leaveF = enterF.filter((x) => !featuresAtPixel.includes(x));
+      leaveF = enterF.filter(x => !featuresAtPixel.includes(x));
       for (let i = 0; i < leaveF.length; i++) {
         const f = leaveF[i];
         outFeature(f);
-        enterF = enterF.filter((x) => x.id_ != f.id_);
+        enterF = enterF.filter(x => x.id_ != f.id_);
       }
       leaveF = [];
     });
@@ -489,8 +491,8 @@ class ImageBase {
    * @param {function} clickFunction - Enter feature.
    * */
   addClickListener(clickFunction) {
-    const map = this.map;
-    map.on("click", function (e) {
+    const { map } = this;
+    map.on('click', function (e) {
       const featuresAtPixel = map.getFeaturesAtPixel(e.pixel);
       for (let i = 0; i < featuresAtPixel.length; i++) {
         const f = featuresAtPixel[i];
@@ -500,19 +502,19 @@ class ImageBase {
   }
 
   createInitialView(initialResolution = null) {
-    let size = this.map.getSize();
+    const size = this.map.getSize();
     const canvas_width = size[0];
     const canvas_height = size[1];
-    const projection = this.projection;
+    const { projection } = this;
     const extent = projection.extent_;
     const image_width = extent[2];
     const image_height = Math.abs(extent[1]);
     const self = this;
-    let w = image_width / canvas_width;
+    const w = image_width / canvas_width;
     const h = image_height / canvas_height;
-    let fullResolution = Math.max(w, h);
-    this.map.set("fullResolution", fullResolution);
-    if (null == initialResolution) {
+    const fullResolution = Math.max(w, h);
+    this.map.set('fullResolution', fullResolution);
+    if (initialResolution == null) {
       initialResolution = (() => {
         switch (self.zoom) {
           case variables.ZOOM_COVER:
@@ -558,16 +560,16 @@ class ImageBase {
         break;
       case variables.POSITION_TOP_LEFT:
         mapCenter = [
-          image_width / 2 +
-            ((canvas_width * initialResolution) / 2 - image_width / 2),
+          image_width / 2
+            + ((canvas_width * initialResolution) / 2 - image_width / 2),
           -((canvas_height * initialResolution) / 2),
         ];
         break;
       default:
         console.warn(
-          "The setting for the center of the image is invalid: '" +
-            this.position +
-            "'. Using the default behaviour.",
+          "The setting for the center of the image is invalid: '"
+            + this.position
+            + "'. Using the default behaviour.",
         );
         mapCenter = getCenter(extent);
     }
@@ -578,7 +580,7 @@ class ImageBase {
       (canvas_height + image_height) * fullResolution,
     ];
     return new View({
-      projection: projection,
+      projection,
       center: mapCenter,
       maxResolution: fullResolution * 1.2,
       resolution: initialResolution,
@@ -593,11 +595,11 @@ class ImageBase {
    * Reset the view, for example after a resize
    * */
   resetView() {
-    const map = this.map;
+    const { map } = this;
     const view = map.getView();
     const mapSize = map.getSize();
-    if (mapSize == "0,0") {
-      /* When the map was not visible, the size is 0,0 and we need to calculate it as if it was opened for the first time*/
+    if (mapSize == '0,0') {
+      /* When the map was not visible, the size is 0,0 and we need to calculate it as if it was opened for the first time */
       map.updateSize();
       const newView = this.createInitialView(this.resolution);
       map.setView(newView);
@@ -622,14 +624,14 @@ class ImageBase {
 
   /** Regenerates all menus except the overview map. Usually to update the language.
    * */
-  updateControls(){
-    return; // Nothing to do in this base class.
+  updateControls() {
+    // Nothing to do in this base class.
   }
 
 
   #findFeatureLayer(name) {
-    this.map.getLayers()
-    const found = this.heiViewerLayers.filter((x) => x.getName() == name);
+    this.map.getLayers();
+    const found = this.heiViewerLayers.filter(x => x.getName() == name);
     return found;
   }
 
@@ -639,7 +641,7 @@ class ImageBase {
    * */
   getFeatureAndLayer(id) {
     const layers = this.heiViewerLayers;
-    for (let layer of layers) {
+    for (const layer of layers) {
       const f = layer.getMapLayer().getSource().getFeatureById(id);
       if (f == null) continue;
       return [f, layer];
@@ -675,41 +677,44 @@ class ImageBase {
   deleteFeature(id) {
     const [f, layer] = this.getFeatureAndLayer(id);
     layer.mapLayer.getSource().removeFeature(f);
-    let features = layer.features;
-    features = features.filter((obj) => obj.name !== id);
+    let { features } = layer;
+    features = features.filter(obj => obj.name !== id);
     layer.features = features;
   }
+
   /** Changes color for feature
    * @param {string} id - The feature ID.
    * @param {string} color - The color as a hex number or array with three numbers for rgb
    * */
   changeFeatureColor(id, color) {
     const [f, layer] = this.getFeatureAndLayer(id);
-    f.get("properties").color = color;
-    const display = layer.display;
+    f.get('properties').color = color;
+    const { display } = layer;
     f.setStyle(visibilityBaseStyle(display, color));
-    return;
+
   }
+
   /** Center, zoom into and highlight feature
    * @param {string} id
    */
   focusFeature(id) {
-    const map = this.map;
+    const { map } = this;
     const [f, layer] = this.getFeatureAndLayer(id);
-    const color = f.get("properties").color;
-    const display = layer.display;
+    const { color } = f.get('properties');
+    const { display } = layer;
     const polygon = f.getGeometry();
     const view = map.getView();
     view.fit(polygon, {
       padding: [20, 20, 20, 20],
       duration: 800,
-      callback: function () {
+      callback() {
         setTimeout(function () {
           f.setStyle(visibilityStrongStyle(display, color, 0.3));
         }, 100);
       },
     });
   }
+
   /** Highlights the feature with the given ID.
    * @param {string} id - The feature ID.
    * @param {number} opacity - The desired opacity. Default is 0.3.
@@ -717,10 +722,10 @@ class ImageBase {
   highlightFeature(id, opacity = 0.3) {
     const featAndLayer = this.mustGetFeatureAndLayer(id);
     const [f, layer] = featAndLayer;
-    const color = f.get("properties").color;
-    const display = layer.display;
+    const { color } = f.get('properties');
+    const { display } = layer;
     f.setStyle(visibilityStrongStyle(display, color, opacity));
-    return;
+
   }
 
   /** Removes highlight for the feature with the given ID.
@@ -729,19 +734,19 @@ class ImageBase {
   unhighlightFeature(id) {
     const featAndLayer = this.mustGetFeatureAndLayer(id);
     const [f, layer] = featAndLayer;
-    const color = f.get("properties").color;
-    const display = layer.display;
+    const { color } = f.get('properties');
+    const { display } = layer;
     f.setStyle(visibilityBaseStyle(display, color));
-    return;
+
   }
 
   /**
    * @param {string} name - The name of the layer to remove. If empty all annotation layers will be removed.
    * */
   deleteLayer(name) {
-    const map = this.map;
-    const heiViewerLayers = this.heiViewerLayers;
-    let filteredLayers = [];
+    const { map } = this;
+    const { heiViewerLayers } = this;
+    const filteredLayers = [];
     for (let i = 0; i < heiViewerLayers.length; i++) {
       const current = heiViewerLayers[i];
       const layerName = current.name;
@@ -760,10 +765,10 @@ class ImageBase {
    * */
   getLayer(name) {
     if (name == null) {
-      console.warn("No name provided in call to getLayer().");
+      console.warn('No name provided in call to getLayer().');
       return null;
     }
-    const heiViewerLayers = this.heiViewerLayers;
+    const { heiViewerLayers } = this;
     for (let i = 0; i < heiViewerLayers.length; i++) {
       const current = heiViewerLayers[i];
       const layerName = current.name;
@@ -771,7 +776,7 @@ class ImageBase {
         return current;
       }
     }
-    console.warn("Could not find layer with name " + name)
+    console.warn('Could not find layer with name ' + name);
     return null;
   }
 
@@ -781,7 +786,7 @@ class ImageBase {
   addLayer(layerObj, i = 0) {
     const layerType = layerObj.type;
     const layerName = layerObj.name;
-    const color = layerObj.color;
+    const { color } = layerObj;
 
     let featureCollection = [];
     if (undefined != layerObj.features) {
@@ -795,20 +800,20 @@ class ImageBase {
 
     source.forEachFeature((f) => {
       this.triggerEvent('viewer:addedFeature', f);
-      const display = layerObj.display;
-      const color = f.get("properties").color;
+      const { display } = layerObj;
+      const { color } = f.get('properties');
       f.setStyle(visibilityBaseStyle(display, color));
     });
 
     const annotationLayer = new VectorLayer({
-      className: "ol-layer ol-annotation-layer",
+      className: 'ol-layer ol-annotation-layer',
       properties: {
-        layerType: layerType ? layerType : "undefined",
-        name: layerName ? layerName : `layer_${i}`,
-        color: color,
-        heivLayer: layerObj
+        layerType: layerType || 'undefined',
+        name: layerName || `layer_${i}`,
+        color,
+        heivLayer: layerObj,
       },
-      source: source,
+      source,
     });
 
     switch (layerType) {
@@ -835,10 +840,11 @@ class ImageBase {
     this.heiViewerLayers.push(layerObj);
     this.map.addLayer(annotationLayer);
 
-    return annotationLayer
+    return annotationLayer;
 
 
   }
+
   /**
    * Add more than one layer at one
    * @param {Array} annotations - An array of Layers.
@@ -879,10 +885,11 @@ class ImageBase {
   /**
    * Sets the size of the container to fit image exactly */
   setContainerSize(container, image_height, res) {
-    container.style.height = (image_height / res).toString() + "px";
+    container.style.height = (image_height / res).toString() + 'px';
   }
+
   updateInteractions() {}
 }
 
 
-export {ImageBase};
+export { ImageBase };

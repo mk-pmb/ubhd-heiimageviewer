@@ -15,7 +15,7 @@ const buttonIconsHtml = { /*
   This dictionary holds the effective HTML codes used for the labels.
   Icon packs are supposed to monkey-patch this object before a viewer
   is initialized. */
-  ...defaultButtonIconsHtml
+  ...defaultButtonIconsHtml,
 };
 
 function fontAwesomeHelper(i) { return '<i class="fa fa-' + i + '"></i>'; }

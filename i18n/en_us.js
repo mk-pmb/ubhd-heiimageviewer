@@ -3,7 +3,7 @@
 
 export const en_US = {
   // Viewport control
-  centerInViewport:   'Center display' ,
+  centerInViewport:   'Center display',
   mouseWheelScrolls:  'Mouse wheel scrolls',
   mouseWheelZooms:    'Mouse wheel magnifies',
   overviewMapHidden:  'Overview map is hidden',
