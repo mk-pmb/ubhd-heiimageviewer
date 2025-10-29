@@ -50,6 +50,18 @@ we found, so here are all the Unicode icons we considered.
 * U+1F5AF one button mouse, U+030A combining ring above (🖯̊)
 
 
+#### overviewMapHidden
+
+* U+1F441 eye, U+0337 combining short solidus overlay (👁̷)
+* U+1F5BE frame with an x (🖾)
+
+
+#### overviewMapVisible
+
+* U+1F441 eye (👁)
+* U+1F5BC frame with picture (🖼)
+
+
 #### rotateFreely
 
 

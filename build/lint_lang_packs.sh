@@ -11,8 +11,9 @@ function lint_lang_packs_cli_init () {
   local VOCLIST_SORT='sort --version-sort --unique'
   local SHAPENAMES_SED='s~^    shortName: \x27([a-z]+)\x27,$~\1~p'
   local VOCAB_SED='s~^\s+([A-Za-z]+):.*$~\1~p'
+  local RGX='\bi18n(\.buttonIconAndLabel|)\(\x27[^\x27]+\x27'
   local VOCLIST_EXPECTED="$( (
-    git grep -hoPe '\bi18n\(\x27[^\x27]+' -- src/ | cut --bytes=7-
+    git grep -hoPe "$RGX" -- src/ | cut -d $'\x27' -sf 2
     sed -nre "$SHAPENAMES_SED" -- src/shapeDefs.js
     ) | grep . | $VOCLIST_SORT)"
   local I18N_VOCAB= I18N_LANG=

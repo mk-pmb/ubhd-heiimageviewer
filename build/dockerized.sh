@@ -7,5 +7,6 @@ NODE_VER="$(grep -A 9009 -Fe '"engines":' -- package.json | tr '\n\r\t' ' ' |
   grep -m 1 -oPe '"node": *\x22>?=?\d+' | grep -oPe '\d+')"
 docker run --rm --network none \
   --volume '.:/app:rw' --workdir /app \
+  --env BUILD_FLAGS \
   node:"${NODE_VER:-E_NO_NODE_VER}" \
   /app/build/build.sh "$@"

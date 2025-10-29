@@ -1,13 +1,17 @@
+// American English language pack.
+// This line is for visual alignment with `../src/buttonIcons.default.js`.
+
 export const en_US = {
   // Viewport control
   centerInViewport:   'Center display' ,
   mouseWheelScrolls:  'Mouse wheel scrolls',
   mouseWheelZooms:    'Mouse wheel magnifies',
+  overviewMapHidden:  'Overview map is hidden',
+  overviewMapVisible: 'Overview map is visible',
   rotateFreely:       'Use Shift+Alt and mouse click to rotate freely.',
   rotateLeft:         'Rotate left',
   rotateRight:        'Rotate right',
   toggleFullScreen:   'Toggle full-screen mode',
-  toggleOverviewMap:  'Toggle overview map',
   zoomIn:             'Zoom in',
   zoomOut:            'Zoom out',
 

@@ -13,7 +13,7 @@ function build_cli_main () {
     git config --global --add safe.directory "$REPO_DIR"
   fi
 
-  echo '===== vite build: ====='
+  echo "===== vite build: ===="
   ./node_modules/.bin/vite build
 
   echo '===== Make language packs: ====='

@@ -1,19 +1,24 @@
-// vite.config.js
-import { defineConfig } from 'vite'
-import {resolve} from "path";
-export default defineConfig({
+import { defineConfig } from 'vite';
+
+const flags = new Set();
+String(process.env.BUILD_FLAGS || '').replace(/\S+/g, m => flags.add(m));
+
+const viteCfg = {
   build: {
+    minify: !flags.has('noMinify'),
     lib: {
-      entry: resolve(__dirname, 'src/index.js'),
+      entry: '.',
       name: 'heiImageViewer',
-      fileName: (fmt) => `heiImageViewer.base.${fmt}.min.js`,
-      formats: ['umd']
+      fileName: fmt => `heiImageViewer.base.${fmt}.min.js`,
+      formats: ['umd'],
     },
     rollupOptions: {
       output: {
         assetFileNames: 'heiImageViewer.min.css',
-        extend: true
-      }
+        extend: true,
+      },
     },
-  }
-})
+  },
+};
+
+export default defineConfig(viteCfg);
