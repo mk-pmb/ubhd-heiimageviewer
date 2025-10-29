@@ -316,8 +316,9 @@ class ImageBase {
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
     });
 
-    let overviewMapTimer; let zoomslideTimer; let
-      prevPos;
+    let overviewMapTimer;
+    let zoomslideTimer;
+    let prevPos;
     map.on('movestart', () => {
       prevPos = map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }

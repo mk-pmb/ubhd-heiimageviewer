@@ -262,8 +262,9 @@ function parseSvg(svg) {
 }
 
 export function calculateCenter(geometry) {
-  let center; let coordinates; let
-    minRadius;
+  let center;
+  let coordinates;
+  let minRadius;
   const type = geometry.getType();
   if (type === 'Polygon') {
     let x = 0;
