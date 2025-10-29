@@ -22,9 +22,11 @@
   "directories": { "test": "test" },
   "scripts": {
     "build": "./build/build.sh",
+    "lint": "elp",
     "test": "echo 'No tests yet!' >&2; exit 2"
   },
   "eslintConfig": { "extends": "nodejs-pmb",
+    "ignorePatterns": ["@/", "i18n/"],
     "env": { "browser": true }
   },
 
@@ -33,15 +35,15 @@
     "get-root-node-polyfill": "^1.0.0",
     "ol": "^9.0.0",
     "ol-ext": "^4.0.18",
+    "parse-color": "^1.0.0",
     "rosetta": "^1.1.0"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^6.7.2",
-    "docdash": "^2.0.2",
-    "jsdoc": "~4.0.2",
-    "jsdoc-to-markdown": "^8.0.0",
-    "prettier": "3.2.5",
-    "vite": "^7.1.10"
+    "eslint-config-nodejs-pmb": "^0.3.12",
+    "eslint-plugin-json-light-pmb": "^1.0.7",
+    "eslint-plugin-n": "^17.16.2",
+    "eslint-pretty-pmb": "^1.0.7",
+    "vite": "^5.4.11"
   },
 
 
