@@ -1,13 +1,17 @@
+// German language pack.
+// This line is for visual alignment with `../src/buttonIcons.default.js`.
+
 export const de_DE = {
   // Viewport control
   centerInViewport:   'Anzeige zentrieren',
   mouseWheelScrolls:  'Mausrad bewegt Ansichtsbereich',
   mouseWheelZooms:    'Mausrad vergrößert oder verkleinert',
+  overviewMapHidden:  'Orientierungsanzeige ist versteckt',
+  overviewMapVisible: 'Orientierungsanzeige ist sichtbar',
   rotateFreely:       'Shift+Alt und Mausklick um frei zu drehen.',
   rotateLeft:         'Links herum drehen',
   rotateRight:        'Rechts herum drehen',
   toggleFullScreen:   'Vollbild-Anzeige umschalten',
-  toggleOverviewMap:  'Orientierungsanzeige ein-/ausblenden',
   zoomIn:             'Vergrößern',
   zoomOut:            'Verkleinern',
 

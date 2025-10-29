@@ -15,7 +15,6 @@ import TileLayer from "ol/layer/Tile.js";
 
 import './hei-image-viewer.css';
 
-import { buttonIconsHtml } from '../i18n/buttonIconsHtml.js';
 import {CenterMapControl, myFullScreen, myZoom, RotateControl, WheelControl} from "./controls.js";
 import {fade} from "./fade.js";
 import {visibilityBaseStyle, visibilityStrongStyle} from "./Layer.js";
@@ -51,34 +50,32 @@ class ImageBase {
    * @param {Boolean} autoSize - If set to true, the width of the container will be preserved, and the image will fit perfectly in it. The height of the container will be automatically computed, so that the image fills it completely. In this case the parameter "zoom" will be irrelevant. If "properties.resolution" is set, that will override this behaviour
    * @param {Number} maxCoordinateDecimals - How many decimals to consider and save in the coordinates for vector zones
    */
+
+  static reqiredParams = [
+    'container',
+    'images',
+  ];
+
   constructor(params) {
+    const origProperties = this.properties;
     Object.assign(this, params);
-    this.properties = this.properties ?? {};
-    this.name =
-      this.name ?? "viewer_" + Math.floor(Math.random() * 1000).toString();
-    this.position = this.position ?? variables.POSITION_DEFAULT;
-    this.zoom = this.zoom ?? variables.ZOOM_MIN;
-    this.overviewMapSize = this.overviewMapSize ?? 150;
-    this.wheelMode = this.properties.wheelMode ?? variables.MW_ZOOM;
-    this.rotation = this.properties.rotation ?? 0;
+    this.properties = Object.assign(origProperties || {}, this.properties);
+    this.name = this.name || ('heiImageViewer'
+      + Math.random().toString(36).slice(2));
+    this.position = this.position || variables.POSITION_DEFAULT;
+    this.zoom = this.zoom || variables.ZOOM_MIN;
+    this.overviewMapSize = this.overviewMapSize || 150;
+    this.wheelMode = this.properties.wheelMode || variables.MW_ZOOM;
+    this.rotation = +this.properties.rotation || 0;
     this.resolution = this.properties.resolution ?? null;
-    this.overviewMapCollapsed = this.properties.overviewMapCollapsed ?? false;
-    this.maxCoordinateDecimals = this.maxCoordinateDecimals ?? 0;
-    if (this.maxCoordinateDecimals < 0){
-      console.warn(`The parameter 'maxCoordinateDecimals' of the heiImageViewer must be a positive integer. Using the default '0' instead of the given '${this.maxCoordinateDecimals}'`)
-      this.maxCoordinateDecimals = 0;
-    }
+    this.overviewMapCollapsed = !!this.properties.overviewMapCollapsed,
+    this.maxCoordinateDecimals = Math.max(0, +this.maxCoordinateDecimals || 0);
 
     /* Check that all essential parameters have been passed and are ok */
-
-    try {
-      if (this.container == null) throw "container";
-      if (this.images == null) throw "images";
-    } catch (e) {
-      console.error(
-        "The ImageViewer can not be displayed as parameter is missing: " + e,
-      );
-      return;
+    const missingParams = this.constructor.reqiredParams.filter(
+      k => !this[k]).join(', ');
+    if (missingParams) {
+      throw new Error('Missing required parameter(s): ' + missingParams);
     }
 
     /* Construct Map */
@@ -87,7 +84,7 @@ class ImageBase {
         mouseWheelZoom: false,
         dragPan: false,
       }),
-      controls: []
+      controls: [],
     });
     this.map.set("heiv", this);
   }
@@ -283,15 +280,16 @@ class ImageBase {
 
     /* OVERVIEW MAP CONTROL */
 
-    const overviewResolution =
-      Math.max(Math.abs(this.extent[1]), Math.abs(this.extent[2])) /
-      this.overviewMapSize;
-    const overviewMapControl = (this.overviewMapControl = new OverviewMap({
-      className: "ol-overviewmap ol-custom-overviewmap",
+    const overviewResolution = Math.max(
+      Math.abs(this.extent[1]),
+      Math.abs(this.extent[2]),
+    ) / this.overviewMapSize;
+    const overviewMapControl= new OverviewMap({
+      className: 'ol-overviewmap ol-custom-overviewmap',
       layers: [this.overviewLayer],
-      label: buttonIconsHtml.toggleOverviewMap,
-      collapseLabel: buttonIconsHtml.toggleOverviewMap,
-      tipLabel: i18n('toggleOverviewMap'),
+      label: i18n.buttonIconAndLabel('overviewMapVisible', 'span'),
+      collapseLabel: i18n.buttonIconAndLabel('overviewMapHidden', 'span'),
+      tipLabel: i18n('overviewMapVisible'),
       collapsed: this.overviewMapCollapsed,
       view: new View({
         projection: this.projection,
@@ -299,7 +297,8 @@ class ImageBase {
         extent: this.extent,
         constrainResolution: true,
       }),
-    }));
+    });
+    this.overviewMapControl = overviewMapControl;
     map.addControl(overviewMapControl);
     /* still handling overview map...*/
     const overvmap = this.container.getElementsByClassName('ol-custom-overviewmap')[0];
@@ -319,9 +318,7 @@ class ImageBase {
     let overviewMapTimer, zoomslideTimer, prevPos;
     map.on("movestart", () => {
       prevPos = map.getView().getCenter();
-      if (overviewMapControl.getCollapsed()) {
-        return;
-      }
+      if (overviewMapControl.getCollapsed()) { return; }
       overviewPreserve();
     });
 
@@ -332,9 +329,7 @@ class ImageBase {
         view.setCenter(prevPos);
       }
       /* Overview map reset timer */
-      if (overviewMapControl.getCollapsed()) {
-        return;
-      }
+      if (overviewMapControl.getCollapsed()) { return; }
       overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
     });
@@ -888,5 +883,6 @@ class ImageBase {
   }
   updateInteractions() {}
 }
+
 
 export {ImageBase};

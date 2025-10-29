@@ -8,7 +8,6 @@ import {noModifierKeys, primaryAction} from "ol/events/condition.js";
 import {createStyle} from "./Layer.js";
 import i18n from "./transl.js";
 
-import { buttonIconsHtml } from '../i18n/buttonIconsHtml.js';
 import logger from './logger.js';
 import shapeDefs from './shapeDefs.js';
 import variables from './variables.js';
@@ -21,21 +20,27 @@ const halfPi = Math.PI / 2;
 const doublePi = Math.PI * 2;
 
 
+function bindEventHandler(btn, control, mtdName, ...args) {
+  const hnd = control[mtdName].bind(control, ...args);
+  btn.addEventListener('click', hnd, false);
+}
+
+
 function addRotationButton(control, clockwise) {
   const btn = document.createElement('button');
   control.element.appendChild(btn);
-  const leftRight = (clockwise ? 'Right' : 'Left');
-  btn.className = 'ol-rotate-' + leftRight.toLowerCase();
-  const iconName = 'rotate' + leftRight;
-  btn.innerHTML = buttonIconsHtml[iconName];
-
-  /* For the i18n lookup, we use a string literal instead of iconName,
-    to help the build script verify our language packs. */
-  btn.title = ((clockwise ? i18n('rotateRight') : i18n('rotateLeft'))
-    + '\n' + i18n('rotateFreely'));
-
-  const clickHandler = control.handleRotate.bind(control, clockwise);
-  btn.addEventListener('click', clickHandler, false);
+  /* The words "right" and "left" are duplicated on purpose in the directional
+    branches, to help contributors find the full identifiers via `git grep`,
+    and to help out i18n linter detect which terms are actually used. */
+  if (clockwise) {
+    btn.className = 'ol-rotate ol-rotate-right';
+    i18n.buttonIconAndLabel('rotateRight', btn);
+  } else { // counter-clockwise
+    btn.className = 'ol-rotate ol-rotate-left';
+    i18n.buttonIconAndLabel('rotateLeft', btn);
+  }
+  btn.title += '\n' + i18n('rotateFreely');
+  bindEventHandler(btn, control, 'handleRotate', clockwise);
 }
 
 
@@ -83,27 +88,20 @@ export class CenterMapControl extends Control {
    */
   constructor(opt_options) {
     const options = opt_options || {};
-    const element = document.createElement("div");
+    const element = document.createElement('div');
 
     super({
       element: element,
       target: options.target,
     });
 
-    const button = this.button = document.createElement("button");
-    button.title = i18n('centerInViewport');
-    button.innerHTML = buttonIconsHtml.centerInViewport;
-
+    const btn = i18n.buttonIconAndLabel('centerInViewport');
+    this.button = btn;
 
     element.className = "ol-centermap ol-unselectable ol-control";
-    element.appendChild(button);
+    element.appendChild(btn);
 
-
-    button.addEventListener(
-      "click",
-      this.centerMap.bind(this, opt_options),
-      false,
-    );
+    bindEventHandler(btn, this, 'centerMap', options);
   }
 
   centerMap(options) {
@@ -144,14 +142,10 @@ export class WheelControl extends Control {
 
     function setWheelModeButtonIcon(label, mode) {
       if (mode === variables.MW_ZOOM) {
-        label.title = i18n('mouseWheelZooms');
-        label.innerHTML = buttonIconsHtml.mouseWheelZooms;
-        return;
+        return i18n.buttonIconAndLabel('mouseWheelZooms', label);
       }
       if (mode === variables.MW_VERTICAL) {
-        label.title = i18n('mouseWheelScrolls');
-        label.innerHTML = buttonIconsHtml.mouseWheelScrolls;
-        return;
+        return i18n.buttonIconAndLabel('mouseWheelScrolls', label);
       }
       throw new Error('setWheelModeButtonIcon: Unknown wheel mode: ' + mode);
     }
@@ -173,8 +167,10 @@ export class myZoom extends Zoom {
   constructor(options) {
     super(options);
     this.extent = options.imageExtent;
-    this.element.getElementsByClassName('ol-zoom-in').item(0).title = i18n('zoomIn');
-    this.element.getElementsByClassName('ol-zoom-out').item(0).title = i18n('zoomOut');
+    i18n.buttonIconAndLabel('zoomIn',
+      this.element.getElementsByClassName('ol-zoom-in')[0]);
+    i18n.buttonIconAndLabel('zoomOut',
+      this.element.getElementsByClassName('ol-zoom-out')[0]);
   }
 
   approachArrays(a, b, factor) {
@@ -230,8 +226,7 @@ export class myFullScreen extends FullScreen {
   constructor() {
     super();
     const btn = this.element.querySelector('.ol-full-screen button');
-    btn.title = i18n('toggleFullScreen');
-    btn.innerHTML = buttonIconsHtml.toggleFullScreen;
+    i18n.buttonIconAndLabel('toggleFullScreen', btn);
   }
 
 }
@@ -241,15 +236,20 @@ export class DrawBase extends Control {
   constructor(opt_options) {
     const options = opt_options || {};
     const shape = options.shape;
-    if (!shape){
-      cwarn("No shape defined for Draw Button")
-      return
-    }
+    if (!shape) { throw new Error('No shape defined for draw button'); }
 
-    const button =  document.createElement('button');
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind heiv-draw-inactive ol-control heiv-draw-ind-' + shape.toLowerCase();
 
+    const shapeName = (shapeDefs[shape] || false).shortName;
+    if (!shapeName) { throw new Error('Invalid shape for draw button'); }
+    const button = i18n.buttonIconAndLabel(shapeName);
+    const shapeNameTranslated = button.title;
+    button.title = i18n('drawShape', {
+      shapeNameTranslated,
+      shapeNameTranslatedLower: shapeNameTranslated.toLowerCase(),
+    });
+    element.appendChild(button);
 
     super({
       element: element,
@@ -259,14 +259,6 @@ export class DrawBase extends Control {
     this.button = button;
     this.active = false;
     this.drawFeatNum = 1;
-    const shapeName = shapeDefs[shape].shortName;
-    const shapeNameTranslated = i18n(shapeName);
-    button.title = i18n('drawShape', {
-      shapeNameTranslated,
-      shapeNameTranslatedLower: shapeNameTranslated.toLowerCase(),
-    });
-    button.innerHTML = buttonIconsHtml[shapeName];
-    element.appendChild(button);
 
     button.addEventListener('click', (e)=>{
       const btn = e.currentTarget;
@@ -357,9 +349,7 @@ export class DrawBase extends Control {
 
 export class SelectMode extends Control {
   constructor(opt_options){
-    const button = document.createElement('button');
-    button.title = i18n('selectShape');
-    button.innerHTML = buttonIconsHtml.selectShape;
+    const button = i18n.buttonIconAndLabel('selectShape');
     const element = document.createElement('div');
     element.className = 'heiv-select ol-control';
     button.classList = 'heiv-select-active';
@@ -424,9 +414,7 @@ export class SelectMode extends Control {
 export class RemoveFeature extends Control {
   constructor(opt_options) {
     const options = opt_options || {};
-    const button = document.createElement('button');
-    button.title = i18n('deleteShape');
-    button.innerHTML = buttonIconsHtml.deleteShape;
+    const button = i18n.buttonIconAndLabel('deleteShape');
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind heiv-trash heiv-trash-inactive ol-control';
     element.appendChild(button);
@@ -462,15 +450,11 @@ export class RemoveFeature extends Control {
 export class ShapeTransform extends Control {
   constructor(opt_options) {
     const options = opt_options || {};
-    const buttonTransform = document.createElement('button');
-    buttonTransform.classList.add("haiv-shapedit-transform");
-    buttonTransform.title = i18n('moveScaleRotate');
-    buttonTransform.innerHTML = buttonIconsHtml.moveScaleRotate;
+    const buttonTransform = i18n.buttonIconAndLabel('moveScaleRotate');
+    buttonTransform.classList.add('heiv-shapedit-transform');
     self.buttonTransform = buttonTransform;
-    const buttonModify = document.createElement('button');
-    buttonModify.title = i18n('editVertices');
-    buttonModify.innerHTML = buttonIconsHtml.editVertices;
-    buttonModify.classList.add("haiv-shapedit-modify");
+    const buttonModify = i18n.buttonIconAndLabel('editVertices');
+    buttonModify.classList.add('heiv-shapedit-modify');
     self.buttonModify = buttonModify ;
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind ol-control heiv-shapedit-transform';
@@ -483,12 +467,8 @@ export class ShapeTransform extends Control {
     })
     this.active = false;
 
-    buttonTransform.addEventListener('click', (e)=> {
-      this.activate('transform');
-    });
-    buttonModify.addEventListener('click', (e)=> {
-      this.activate('modify');
-    })
+    bindEventHandler(buttonTransform, this, 'activate', 'transform');
+    bindEventHandler(buttonModify, this, 'activate', 'modify');
   }
 
   activate(type){
