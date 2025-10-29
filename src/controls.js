@@ -321,9 +321,9 @@ export class DrawBase extends Control {
       const color = layer.get('color');
       const style = createStyle(color, 0.1);
       if (feature.get('modifyGeometry')) {
-        style.setGeometry(function (feature) {
-          const modifyGeometry = feature.get('modifyGeometry');
-          return modifyGeometry ? modifyGeometry.geometry : feature.getGeometry();
+        style.setGeometry(function setGeom(feat) {
+          const modifyGeometry = feat.get('modifyGeometry');
+          return modifyGeometry ? modifyGeometry.geometry : feat.getGeometry();
         });
       }
       feature.setStyle(style);

@@ -802,8 +802,8 @@ class ImageBase {
     source.forEachFeature((f) => {
       this.triggerEvent('viewer:addedFeature', f);
       const { display } = layerObj;
-      const { color } = f.get('properties');
-      f.setStyle(visibilityBaseStyle(display, color));
+      const props = f.get('properties');
+      f.setStyle(visibilityBaseStyle(display, props.color));
     });
 
     const annotationLayer = new VectorLayer({
