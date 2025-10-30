@@ -1,11 +1,9 @@
 import { Collection, Feature } from 'ol';
 import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
 import { fromCircle } from 'ol/geom/Polygon.js';
+import { getWidth, getHeight } from 'ol/extent.js';
 import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
-// ============================================================================
-// HELPER FUNCTIONS - Lowest level, no dependencies
-// ============================================================================
 
 function parseSvg(svg) {
   const parser = new DOMParser();
@@ -14,7 +12,6 @@ function parseSvg(svg) {
 }
 
 function getPointCoordsFromPrimitive(points, divisor) {
-  // const points = svgPrimitiveContainer.getAttribute("points");
   const coordClusters = points.split(' ');
   const coordinates = [];
   coordClusters.forEach((item) => {
@@ -46,13 +43,15 @@ function convertRect(rect, divisor) {
 }
 
 function convertPolygon(poly, divisor) {
-  const coordinates = getPointCoordsFromPrimitive(poly.getAttribute('points'), divisor);
+  const points = poly.getAttribute('points');
+  const coordinates = getPointCoordsFromPrimitive(points, divisor);
   const obj = new Polygon([coordinates]);
   return obj;
 }
 
 function convertLine(line, divisor) {
-  // The svg line-Element contains only two points (line start and end); if more points are used, see function convertPolyline().
+  // The svg line-Element contains only two points (line start and end);
+  // if more points are used, see function convertPolyline().
   const x1 = Number(line.getAttribute('x1')) / divisor;
   const y1 = Number(line.getAttribute('y1')) / divisor;
   const x2 = Number(line.getAttribute('x2')) / divisor;
@@ -66,8 +65,11 @@ function convertLine(line, divisor) {
 }
 
 function convertPolyline(polyline, divisor) {
-  // The svg polyline-Element contains two or more points which together form a single line. If separate lines are to be connected to a single shape, see ...XXX
-  const coordinates = getPointCoordsFromPrimitive(polyline.getAttribute('points'), divisor);
+  // The svg polyline-Element contains two or more points which together
+  // form a single line. If separate lines are to be connected to a
+  // single shape, see ...XXX
+  const points = polyline.getAttribute('points');
+  const coordinates = getPointCoordsFromPrimitive(points, divisor);
   const obj = new LineString(coordinates);
   return obj;
 }
@@ -96,9 +98,6 @@ function convertEllipse(ellipse, divisor = 1) {
   return obj;
 }
 
-// ============================================================================
-// MID-LEVEL FUNCTIONS - Use helper functions
-// ============================================================================
 
 function convertTeiSource(source, coordDivisor = 1) {
   const divisor = Number(coordDivisor);
@@ -146,10 +145,6 @@ function convertSvgSource(source, imgWidth, coordDivisor = 1) {
   return [svgGeometry, svgPrimitiveTypes];
 }
 
-// ============================================================================
-// HIGH-LEVEL FUNCTIONS - Use mid and helper functions
-// ============================================================================
-
 function createSingleFeature(options) {
   const feature = new Feature({
     geometry: options.featureGeometry,
@@ -191,7 +186,9 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
         geometry = convertTeiSource(source);
         break;
       default:
-        console.warn(`You are using an invalid format for your features to be drawn on canvas: "${format}"`);
+        console.warn(
+          `Invalid format for features: "${format}"`,
+        );
         break;
     }
     allGeometriesInThisFeature.push(geometry);
@@ -223,14 +220,6 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
   return result;
 }
 
-// ============================================================================
-// MAIN EXPORT - Uses createFeatures
-// ============================================================================
-
-/** This is the main function to parse the vector shapes to be displayed in the map.
- * It creates the Feature Collection to add to the source.
- * @param {Array} annotations - Annotations object
- * @return {Collection<Feature>} */
 export default (annotations, projection) => {
   const featuresOrig = annotations.features;
   const layerType = annotations.type;
@@ -258,9 +247,6 @@ export default (annotations, projection) => {
   return new Collection(features);
 };
 
-// ============================================================================
-// OTHER EXPORTS
-// ============================================================================
 
 export function ellipseGeometryFunction(coordinates, geometry) {
   const center = coordinates[0];
@@ -309,7 +295,7 @@ export function calculateCenter(geometry) {
     });
     minRadius = Math.sqrt(Math.max.apply(Math, sqDistances)) / 3;
   } else {
-    minRadius =            Math.max(
+    minRadius = Math.max(
       getWidth(geometry.getExtent()),
       getHeight(geometry.getExtent()),
     ) / 3;
