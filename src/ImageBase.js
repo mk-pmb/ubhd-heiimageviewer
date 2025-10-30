@@ -420,7 +420,7 @@ class ImageBase {
     const viewport = this.map.getViewport();
     viewport.addEventListener('mouseout', () => {
       this.hoveredFeatures.forEach((feat) => {
-        this.unhighlightFeature(feat.id_);
+        this.unhighlightFeature(feat.id_); // eslint-disable-line no-underscore-dangle
       });
       this.hoveredFeatures = [];
     });
@@ -443,31 +443,32 @@ class ImageBase {
         if (hoveredFeature !== null) {
           let isSelected = false;
           selectedFeature.forEach((sf) => {
+            // eslint-disable-next-line no-underscore-dangle
             if (hoveredFeature.id_ === sf.id_) {
               isSelected = true;
             }
           });
-          if (isSelected === true) {
-            continue;
+          if (isSelected !== true) {
+            const { color } = hoveredFeature.get('properties');
+            const correspLayerName = hoveredFeature.get('properties').layerName;
+            const correspLayer = selfObject.#findFeatureLayer(
+              correspLayerName,
+            )[0];
+            const { display } = correspLayer;
+            hoveredFeature.setStyle(visibilityBaseStyle(display, color));
           }
-          const { color } = hoveredFeature.get('properties');
-          const correspLayerName = hoveredFeature.get('properties').layerName;
-          const correspLayer = selfObject.#findFeatureLayer(
-            correspLayerName,
-          )[0];
-          const { display } = correspLayer;
-          hoveredFeature.setStyle(visibilityBaseStyle(display, color));
         }
       }
       this.hoveredFeatures = [];
       this.map.forEachFeatureAtPixel(
         e.pixel,
         function handleFeature(f) {
-          if (f.id_ === undefined) {
+          if (f.id_ === undefined) { // eslint-disable-line no-underscore-dangle
             return;
           }
           let isSelected = false;
           selectedFeature.forEach((sf) => {
+            // eslint-disable-next-line no-underscore-dangle
             if (f.id_ === sf.id_) {
               isSelected = true;
             }
@@ -544,6 +545,7 @@ class ImageBase {
       for (let i = 0; i < leaveF.length; i += 1) {
         const f = leaveF[i];
         outFeature(f);
+        // eslint-disable-next-line no-underscore-dangle
         enterF = enterF.filter(x => x.id_ !== f.id_);
       }
       leaveF = [];
@@ -570,7 +572,7 @@ class ImageBase {
     const canvasWidth = size[0];
     const canvasHeight = size[1];
     const { projection } = this;
-    const extent = projection.extent_;
+    const extent = projection.extent_; // eslint-disable-line no-underscore-dangle
     const imageWidth = extent[2];
     const imageHeight = Math.abs(extent[1]);
     const self = this;
@@ -621,9 +623,9 @@ class ImageBase {
         break;
       case variables.POSITION_TOP:
         mapCenter = [
-        imageWidth / 2,
-        (-canvasHeight * initialResolution) / 2,
-      ];
+          imageWidth / 2,
+          (-canvasHeight * initialResolution) / 2,
+        ];
         break;
       case variables.POSITION_TOP_LEFT:
         mapCenter = [
@@ -713,8 +715,9 @@ class ImageBase {
     for (let i = 0; i < layers.length; i += 1) {
       const layer = layers[i];
       const f = layer.getMapLayer().getSource().getFeatureById(id);
-      if (f === null || f === undefined) continue;
-      return [f, layer];
+      if (f !== null && f !== undefined){
+        return [f, layer];
+      }
     }
     return false;
   }
