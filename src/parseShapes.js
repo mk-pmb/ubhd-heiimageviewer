@@ -1,6 +1,6 @@
 import { Collection, Feature } from 'ol';
 import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
-import { fromCircle } from 'ol/geom/Polygon';
+import { fromCircle } from 'ol/geom/Polygon.js';
 import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
 /** This is the main function to parse the vector shapes to be displayed in the map.
@@ -11,41 +11,41 @@ export default (annotations, projection) => {
   const featuresOrig = annotations.features;
   const layerType = annotations.type;
   const layerName = annotations.name;
-  const img_width = projection.extent_[2];
+  const imgWidth = projection.extent_[2];
   const { color } = annotations;
   /* Neccesary to move feature coordinates from bottom to top */
   const invertedProjection = new Projection({});
   addCoordinateTransforms(projection, invertedProjection,
-    function (coordinate) {
+    function invertCoordinate(coordinate) {
       return [coordinate[0], -coordinate[1]];
     },
-    function (coordinate) {
+    function invertCoordinateBack(coordinate) {
       return [coordinate[0], -coordinate[1]];
     });
   const features = [];
-  for (let i = 0; i < featuresOrig.length; i++) {
-    const feats = createFeatures(featuresOrig[i], layerType, img_width, color, layerName);
-    for (const featureElement of feats) {
+  for (let i = 0; i < featuresOrig.length; i += 1) {
+    const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color, layerName);
+    feats.forEach((featureElement) => {
       const geometry = featureElement.getGeometry();
       geometry.transform(projection, invertedProjection);
       features.push(featureElement);
-    }
+    });
   }
   return new Collection(features);
 };
 
 
-function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
-  const feat_options = {};
+function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
+  const featOptions = {};
   const multiFeature = feat.multiFeature ? feat.multiFeature : false;
-  feat_options.featName = feat.name;
-  feat_options.layerName = layerName;
-  feat_options.layerType = layerType;
-  feat_options.color = feat.color ? feat.color : color;
+  featOptions.featName = feat.name;
+  featOptions.layerName = layerName;
+  featOptions.layerType = layerType;
+  featOptions.color = feat.color ? feat.color : color;
   const { shapes } = feat;
   const allGeometriesInThisFeature = [];
   let allTypesInThisFeature = [];
-  for (let i = 0; i < shapes.length; i++) {
+  for (let i = 0; i < shapes.length; i += 1) {
     const shape = shapes[i];
     const { format } = shape;
     let { source } = shape;
@@ -55,7 +55,7 @@ function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
         if (typeof source === 'string') {
           source = parseSvg(source);
         }
-        [geometry, allTypesInThisFeature] = convertSvgSource(source, img_width);
+        [geometry, allTypesInThisFeature] = convertSvgSource(source, imgWidth);
         break;
       case 'tei':
         geometry = convertTeiSource(source);
@@ -71,23 +71,23 @@ function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
   const result = [];
   if (geometries.length > 1) {
     if (multiFeature) {
-      feat_options.featureGeometry = new GeometryCollection(geometries);
-      feat_options.featureType = 'collection';
-      const feature = createSingleFeature(feat_options);
+      featOptions.featureGeometry = new GeometryCollection(geometries);
+      featOptions.featureType = 'collection';
+      const feature = createSingleFeature(featOptions);
       result.push(feature);
     } else {
-      for (let i = 0; i < geometries.length; i++) {
-        feat_options.featureGeometry = geometries[i];
-        feat_options.featureType = allTypesInThisFeature[i];
-        feat_options.featName += '_' + i;
-        const feature = createSingleFeature(feat_options);
+      for (let i = 0; i < geometries.length; i += 1) {
+        featOptions.featureGeometry = geometries[i];
+        featOptions.featureType = allTypesInThisFeature[i];
+        featOptions.featName += '_' + i;
+        const feature = createSingleFeature(featOptions);
         result.push(feature);
       }
     }
   } else {
-    feat_options.featureGeometry = geometries[0];
-    feat_options.featureType = allTypesInThisFeature[0];
-    const feature = createSingleFeature(feat_options);
+    featOptions.featureGeometry = geometries[0];
+    featOptions.featureType = allTypesInThisFeature[0];
+    const feature = createSingleFeature(featOptions);
     result.push(feature);
   }
   return result;
@@ -114,14 +114,14 @@ function convertTeiSource(source, coordDivisor = 1) {
   return [new Polygon(coordinates)];
 }
 
-function convertSvgSource(source, img_width, coordDivisor = 1) {
+function convertSvgSource(source, imgWidth, coordDivisor = 1) {
   const divisor = Number(coordDivisor);
   const svgPrimitiveContainers = source.children[0].children;
   const svgPrimitiveTypes = [];
   const svgWidth = source.children[0].getAttribute('width');
-  const scaleFactor = img_width / svgWidth;
+  const scaleFactor = imgWidth / svgWidth;
   const svgGeometry = [];
-  for (const svgPrimitiveContainer of svgPrimitiveContainers) {
+  Array.from(svgPrimitiveContainers).forEach((svgPrimitiveContainer) => {
     const svgPrimitiveType = svgPrimitiveContainer.nodeName;
     svgPrimitiveTypes.push(svgPrimitiveType);
     let geo;
@@ -150,7 +150,7 @@ function convertSvgSource(source, img_width, coordDivisor = 1) {
     }
     geo.scale(scaleFactor, scaleFactor, [0, 0]);
     svgGeometry.push(geo);
-  }
+  });
   return [svgGeometry, svgPrimitiveTypes];
 }
 
@@ -246,12 +246,12 @@ function getPointCoordsFromPrimitive(points, divisor) {
   // const points = svgPrimitiveContainer.getAttribute("points");
   const coordClusters = points.split(' ');
   const coordinates = [];
-  for (const item of coordClusters) {
+  coordClusters.forEach((item) => {
     const xy = item.split(',');
     const x = Number(xy[0]) / divisor;
     const y = Number(xy[1]) / divisor;
-    const len = coordinates.push([x, y]);
-  }
+    coordinates.push([x, y]);
+  });
   return coordinates;
 }
 
@@ -270,10 +270,10 @@ export function calculateCenter(geometry) {
     let y = 0;
     let i = 0;
     coordinates = geometry.getCoordinates()[0].slice(1);
-    coordinates.forEach(function (coordinate) {
+    coordinates.forEach(function sumCoordinates(coordinate) {
       x += coordinate[0];
       y += coordinate[1];
-      i++;
+      i += 1;
     });
     center = [x / i, y / i];
   } else if (type === 'LineString') {
@@ -284,7 +284,7 @@ export function calculateCenter(geometry) {
   }
   let sqDistances;
   if (coordinates) {
-    sqDistances = coordinates.map(function (coordinate) {
+    sqDistances = coordinates.map(function calculateSquareDistance(coordinate) {
       const dx = coordinate[0] - center[0];
       const dy = coordinate[1] - center[1];
       return dx * dx + dy * dy;
