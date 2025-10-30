@@ -18,7 +18,9 @@ class imageViewer extends ImageBase {
 
   createViewer() {
     super.createViewer();
-    const mouseWheelControl = new WheelControl({ viewer: this, wheelMode: this.wheelMode });
+    const mouseWheelControl = new WheelControl(
+      { viewer: this, wheelMode: this.wheelMode },
+    );
     this.map.addControl(mouseWheelControl);
     this.updateControls(this.lang);
   }

@@ -162,7 +162,7 @@ export class WheelControl extends Control {
 }
 
 
-export class myZoom extends Zoom {
+export class MyZoom extends Zoom {
 
   constructor(options) {
     super(options);
@@ -222,7 +222,7 @@ export class myZoom extends Zoom {
 }
 
 
-export class myFullScreen extends FullScreen {
+export class MyFullScreen extends FullScreen {
   constructor() {
     super();
     const btn = this.element.querySelector('.ol-full-screen button');
@@ -350,6 +350,7 @@ export class DrawBase extends Control {
 
 export class SelectMode extends Control {
   constructor(opt_options) {
+    const options = opt_options || {}
     const button = i18n.buttonIconAndLabel('selectShape');
     const element = document.createElement('div');
     element.className = 'heiv-select ol-control';
