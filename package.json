@@ -33,6 +33,7 @@
   "dependencies": {
     "@webcomponents/shadydom": "^1.11.0",
     "get-root-node-polyfill": "^1.0.0",
+    "getown": "^1.0.1",
     "ol": "^9.0.0",
     "ol-ext": "^4.0.18",
     "parse-color": "^1.0.0",
