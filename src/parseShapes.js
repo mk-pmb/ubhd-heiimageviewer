@@ -3,157 +3,28 @@ import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
-/** This is the main function to parse the vector shapes to be displayed in the map.
- * It creates the Feature Collection to add to the source.
- * @param {Array} annotations - Annotations object
- * @return {Collection<Feature>} */
-export default (annotations, projection) => {
-  const featuresOrig = annotations.features;
-  const layerType = annotations.type;
-  const layerName = annotations.name;
-  const imgWidth = projection.extent_[2];
-  const { color } = annotations;
-  /* Neccesary to move feature coordinates from bottom to top */
-  const invertedProjection = new Projection({});
-  addCoordinateTransforms(projection, invertedProjection,
-    function invertCoordinate(coordinate) {
-      return [coordinate[0], -coordinate[1]];
-    },
-    function invertCoordinateBack(coordinate) {
-      return [coordinate[0], -coordinate[1]];
-    });
-  const features = [];
-  for (let i = 0; i < featuresOrig.length; i += 1) {
-    const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color, layerName);
-    feats.forEach((featureElement) => {
-      const geometry = featureElement.getGeometry();
-      geometry.transform(projection, invertedProjection);
-      features.push(featureElement);
-    });
-  }
-  return new Collection(features);
-};
+// ============================================================================
+// HELPER FUNCTIONS - Lowest level, no dependencies
+// ============================================================================
 
-
-function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
-  const featOptions = {};
-  const multiFeature = feat.multiFeature ? feat.multiFeature : false;
-  featOptions.featName = feat.name;
-  featOptions.layerName = layerName;
-  featOptions.layerType = layerType;
-  featOptions.color = feat.color ? feat.color : color;
-  const { shapes } = feat;
-  const allGeometriesInThisFeature = [];
-  let allTypesInThisFeature = [];
-  for (let i = 0; i < shapes.length; i += 1) {
-    const shape = shapes[i];
-    const { format } = shape;
-    let { source } = shape;
-    let geometry;
-    switch (format) {
-      case 'svg':
-        if (typeof source === 'string') {
-          source = parseSvg(source);
-        }
-        [geometry, allTypesInThisFeature] = convertSvgSource(source, imgWidth);
-        break;
-      case 'tei':
-        geometry = convertTeiSource(source);
-        break;
-      default:
-        console.warn(`You are using an invalid format for your features to be drawn on canvas: "${format}"`);
-        break;
-    }
-    allGeometriesInThisFeature.push(geometry);
-  }
-  const geometries = allGeometriesInThisFeature.flat();
-
-  const result = [];
-  if (geometries.length > 1) {
-    if (multiFeature) {
-      featOptions.featureGeometry = new GeometryCollection(geometries);
-      featOptions.featureType = 'collection';
-      const feature = createSingleFeature(featOptions);
-      result.push(feature);
-    } else {
-      for (let i = 0; i < geometries.length; i += 1) {
-        featOptions.featureGeometry = geometries[i];
-        featOptions.featureType = allTypesInThisFeature[i];
-        featOptions.featName += '_' + i;
-        const feature = createSingleFeature(featOptions);
-        result.push(feature);
-      }
-    }
-  } else {
-    featOptions.featureGeometry = geometries[0];
-    featOptions.featureType = allTypesInThisFeature[0];
-    const feature = createSingleFeature(featOptions);
-    result.push(feature);
-  }
-  return result;
+function parseSvg(svg) {
+  const parser = new DOMParser();
+  const svgXml = parser.parseFromString(svg, 'text/xml');
+  return svgXml;
 }
 
-function createSingleFeature(options) {
-  const feature = new Feature({
-    geometry: options.featureGeometry,
-    properties: {
-      kind: options.layerType,
-      color: options.color,
-      layerName: options.layerName,
-      type: options.featureType,
-      subfeatures: options.allTypesInThisFeature ? options.allTypesInThisFeature : '',
-    },
+function getPointCoordsFromPrimitive(points, divisor) {
+  // const points = svgPrimitiveContainer.getAttribute("points");
+  const coordClusters = points.split(' ');
+  const coordinates = [];
+  coordClusters.forEach((item) => {
+    const xy = item.split(',');
+    const x = Number(xy[0]) / divisor;
+    const y = Number(xy[1]) / divisor;
+    coordinates.push([x, y]);
   });
-  feature.setId(options.featName);
-  return feature;
+  return coordinates;
 }
-
-function convertTeiSource(source, coordDivisor = 1) {
-  const divisor = Number(coordDivisor);
-  const coordinates = [getPointCoordsFromPrimitive(source, divisor)];
-  return [new Polygon(coordinates)];
-}
-
-function convertSvgSource(source, imgWidth, coordDivisor = 1) {
-  const divisor = Number(coordDivisor);
-  const svgPrimitiveContainers = source.children[0].children;
-  const svgPrimitiveTypes = [];
-  const svgWidth = source.children[0].getAttribute('width');
-  const scaleFactor = imgWidth / svgWidth;
-  const svgGeometry = [];
-  Array.from(svgPrimitiveContainers).forEach((svgPrimitiveContainer) => {
-    const svgPrimitiveType = svgPrimitiveContainer.nodeName;
-    svgPrimitiveTypes.push(svgPrimitiveType);
-    let geo;
-    switch (svgPrimitiveType) {
-      case 'rect':
-        geo = convertRect(svgPrimitiveContainer, divisor);
-        break;
-      case 'polygon':
-        geo =  convertPolygon(svgPrimitiveContainer, divisor);
-        break;
-      case 'line':
-        geo = convertLine(svgPrimitiveContainer, divisor);
-        break;
-      case 'polyline':
-        geo = convertPolyline(svgPrimitiveContainer, divisor);
-        break;
-      case 'circle':
-        geo = convertCircle(svgPrimitiveContainer, divisor);
-        break;
-      case 'ellipse':
-        geo = convertEllipse(svgPrimitiveContainer, divisor);
-        break;
-      default:
-        console.warn('Unknown svg primitive.');
-        break;
-    }
-    geo.scale(scaleFactor, scaleFactor, [0, 0]);
-    svgGeometry.push(geo);
-  });
-  return [svgGeometry, svgPrimitiveTypes];
-}
-
 
 function convertRect(rect, divisor) {
 
@@ -225,6 +96,172 @@ function convertEllipse(ellipse, divisor = 1) {
   return obj;
 }
 
+// ============================================================================
+// MID-LEVEL FUNCTIONS - Use helper functions
+// ============================================================================
+
+function convertTeiSource(source, coordDivisor = 1) {
+  const divisor = Number(coordDivisor);
+  const coordinates = [getPointCoordsFromPrimitive(source, divisor)];
+  return [new Polygon(coordinates)];
+}
+
+function convertSvgSource(source, imgWidth, coordDivisor = 1) {
+  const divisor = Number(coordDivisor);
+  const svgPrimitiveContainers = source.children[0].children;
+  const svgPrimitiveTypes = [];
+  const svgWidth = source.children[0].getAttribute('width');
+  const scaleFactor = imgWidth / svgWidth;
+  const svgGeometry = [];
+  Array.from(svgPrimitiveContainers).forEach((svgPrimitiveContainer) => {
+    const svgPrimitiveType = svgPrimitiveContainer.nodeName;
+    svgPrimitiveTypes.push(svgPrimitiveType);
+    let geo;
+    switch (svgPrimitiveType) {
+      case 'rect':
+        geo = convertRect(svgPrimitiveContainer, divisor);
+        break;
+      case 'polygon':
+        geo =  convertPolygon(svgPrimitiveContainer, divisor);
+        break;
+      case 'line':
+        geo = convertLine(svgPrimitiveContainer, divisor);
+        break;
+      case 'polyline':
+        geo = convertPolyline(svgPrimitiveContainer, divisor);
+        break;
+      case 'circle':
+        geo = convertCircle(svgPrimitiveContainer, divisor);
+        break;
+      case 'ellipse':
+        geo = convertEllipse(svgPrimitiveContainer, divisor);
+        break;
+      default:
+        console.warn('Unknown svg primitive.');
+        break;
+    }
+    geo.scale(scaleFactor, scaleFactor, [0, 0]);
+    svgGeometry.push(geo);
+  });
+  return [svgGeometry, svgPrimitiveTypes];
+}
+
+// ============================================================================
+// HIGH-LEVEL FUNCTIONS - Use mid and helper functions
+// ============================================================================
+
+function createSingleFeature(options) {
+  const feature = new Feature({
+    geometry: options.featureGeometry,
+    properties: {
+      kind: options.layerType,
+      color: options.color,
+      layerName: options.layerName,
+      type: options.featureType,
+      subfeatures: options.allTypesInThisFeature ? options.allTypesInThisFeature : '',
+    },
+  });
+  feature.setId(options.featName);
+  return feature;
+}
+
+function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
+  const featOptions = {};
+  const multiFeature = feat.multiFeature ? feat.multiFeature : false;
+  featOptions.featName = feat.name;
+  featOptions.layerName = layerName;
+  featOptions.layerType = layerType;
+  featOptions.color = feat.color ? feat.color : color;
+  const { shapes } = feat;
+  const allGeometriesInThisFeature = [];
+  let allTypesInThisFeature = [];
+  for (let i = 0; i < shapes.length; i += 1) {
+    const shape = shapes[i];
+    const { format } = shape;
+    let { source } = shape;
+    let geometry;
+    switch (format) {
+      case 'svg':
+        if (typeof source === 'string') {
+          source = parseSvg(source);
+        }
+        [geometry, allTypesInThisFeature] = convertSvgSource(source, imgWidth);
+        break;
+      case 'tei':
+        geometry = convertTeiSource(source);
+        break;
+      default:
+        console.warn(`You are using an invalid format for your features to be drawn on canvas: "${format}"`);
+        break;
+    }
+    allGeometriesInThisFeature.push(geometry);
+  }
+  const geometries = allGeometriesInThisFeature.flat();
+
+  const result = [];
+  if (geometries.length > 1) {
+    if (multiFeature) {
+      featOptions.featureGeometry = new GeometryCollection(geometries);
+      featOptions.featureType = 'collection';
+      const feature = createSingleFeature(featOptions);
+      result.push(feature);
+    } else {
+      for (let i = 0; i < geometries.length; i += 1) {
+        featOptions.featureGeometry = geometries[i];
+        featOptions.featureType = allTypesInThisFeature[i];
+        featOptions.featName += '_' + i;
+        const feature = createSingleFeature(featOptions);
+        result.push(feature);
+      }
+    }
+  } else {
+    featOptions.featureGeometry = geometries[0];
+    featOptions.featureType = allTypesInThisFeature[0];
+    const feature = createSingleFeature(featOptions);
+    result.push(feature);
+  }
+  return result;
+}
+
+// ============================================================================
+// MAIN EXPORT - Uses createFeatures
+// ============================================================================
+
+/** This is the main function to parse the vector shapes to be displayed in the map.
+ * It creates the Feature Collection to add to the source.
+ * @param {Array} annotations - Annotations object
+ * @return {Collection<Feature>} */
+export default (annotations, projection) => {
+  const featuresOrig = annotations.features;
+  const layerType = annotations.type;
+  const layerName = annotations.name;
+  const imgWidth = projection.extent_[2];
+  const { color } = annotations;
+  /* Neccesary to move feature coordinates from bottom to top */
+  const invertedProjection = new Projection({});
+  addCoordinateTransforms(projection, invertedProjection,
+    function invertCoordinate(coordinate) {
+      return [coordinate[0], -coordinate[1]];
+    },
+    function invertCoordinateBack(coordinate) {
+      return [coordinate[0], -coordinate[1]];
+    });
+  const features = [];
+  for (let i = 0; i < featuresOrig.length; i += 1) {
+    const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color, layerName);
+    feats.forEach((featureElement) => {
+      const geometry = featureElement.getGeometry();
+      geometry.transform(projection, invertedProjection);
+      features.push(featureElement);
+    });
+  }
+  return new Collection(features);
+};
+
+// ============================================================================
+// OTHER EXPORTS
+// ============================================================================
+
 export function ellipseGeometryFunction(coordinates, geometry) {
   const center = coordinates[0];
   const last = coordinates[1];
@@ -240,25 +277,6 @@ export function ellipseGeometryFunction(coordinates, geometry) {
     geometry.setCoordinates(polygon.getCoordinates());
   }
   return geometry;
-}
-
-function getPointCoordsFromPrimitive(points, divisor) {
-  // const points = svgPrimitiveContainer.getAttribute("points");
-  const coordClusters = points.split(' ');
-  const coordinates = [];
-  coordClusters.forEach((item) => {
-    const xy = item.split(',');
-    const x = Number(xy[0]) / divisor;
-    const y = Number(xy[1]) / divisor;
-    coordinates.push([x, y]);
-  });
-  return coordinates;
-}
-
-function parseSvg(svg) {
-  const parser = new DOMParser();
-  const svgXml = parser.parseFromString(svg, 'text/xml');
-  return svgXml;
 }
 
 export function calculateCenter(geometry) {
