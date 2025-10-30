@@ -338,8 +338,13 @@ class ImageBase {
     });
     const selfO = this;
     overviewButton.onclick = function () {
-      overviewCanvas.style.visibility = 'hidden';
-      zoomslider.style.visibility = 'hidden';
+      const isCurrentlyCollapsed = overviewMapControl.getCollapsed();
+      if (isCurrentlyCollapsed) {
+        overviewCanvas.style.visibility = 'hidden';
+        zoomslider.style.visibility = 'hidden';
+      } else {
+        overviewPreserve();
+      }
     };
 
     overviewMapControl.getOverviewMap().on('pointerdrag', overviewPreserve);
