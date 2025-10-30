@@ -1,8 +1,8 @@
-import { Collection, Feature } from 'ol';
+import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
+import { Collection, Feature } from 'ol';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { getWidth, getHeight } from 'ol/extent.js';
-import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
 
 function parseSvg(svg) {
