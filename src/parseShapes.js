@@ -1,6 +1,6 @@
 import { Collection, Feature } from 'ol';
 import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
-import { fromCircle } from 'ol/geom/Polygon';
+import { fromCircle } from 'ol/geom/Polygon.js';
 import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
 /** This is the main function to parse the vector shapes to be displayed in the map.

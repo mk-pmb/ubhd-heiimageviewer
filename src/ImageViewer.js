@@ -1,5 +1,5 @@
 // src/ImageViewer.js
-import { DragPan } from 'ol/interaction';
+import { DragPan } from 'ol/interaction.js';
 import { ImageBase } from './ImageBase.js';
 import { WheelControl } from './controls.js';
 

@@ -1,5 +1,5 @@
 // src/ImageDraw
-import { DragPan, Modify, Select, Translate } from 'ol/interaction';
+import { DragPan, Modify, Select, Translate } from 'ol/interaction.js';
 import { Fill, Stroke, Style } from 'ol/style.js';
 import { Collection } from 'ol';
 import { shiftKeyOnly } from 'ol/events/condition.js';

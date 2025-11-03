@@ -1,8 +1,8 @@
 // src/ImageViewer.js
 import { Collection, View } from 'ol';
 import OlMap from 'ol/Map.js';
-import { OverviewMap, ZoomSlider } from 'ol/control';
-import { defaults as defaultInteractions, MouseWheelZoom } from 'ol/interaction';
+import { OverviewMap, ZoomSlider } from 'ol/control.js';
+import { defaults as defaultInteractions, MouseWheelZoom } from 'ol/interaction.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import ImageLayer from 'ol/layer/Image.js';

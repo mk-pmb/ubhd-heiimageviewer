@@ -1,8 +1,8 @@
 // controls.js
-import { containsCoordinate, getCenter } from 'ol/extent';
+import { containsCoordinate, getCenter } from 'ol/extent.js';
 import { Collection } from 'ol';
-import { Control, FullScreen, Zoom } from 'ol/control';
-import { Draw } from 'ol/interaction';
+import { Control, FullScreen, Zoom } from 'ol/control.js';
+import { Draw } from 'ol/interaction.js';
 import { noModifierKeys, primaryAction } from 'ol/events/condition.js';
 
 import { createStyle } from './Layer.js';
