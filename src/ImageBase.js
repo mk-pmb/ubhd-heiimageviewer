@@ -1,7 +1,7 @@
 // src/ImageViewer.js
 import { Collection, View } from 'ol';
 import OlMap from 'ol/Map.js';
-import { OverviewMap, ZoomSlider } from 'ol/control.js';
+import { OverviewMap } from 'ol/control.js';
 import { defaults as defaultInteractions } from 'ol/interaction.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
@@ -15,7 +15,7 @@ import TileLayer from 'ol/layer/Tile.js';
 
 import './hei-image-viewer.css';
 
-import { CenterMapControl, MyFullScreen, MyZoom, RotateControl } from './controls.js';
+import { makeDefaultControls } from './controls.js';
 import { fade } from './fade.js';
 
 import todoRefactorInstanceof from './todo.refactorInstanceof.js';
@@ -284,16 +284,7 @@ class ImageBase {
 
     /* CONTROLS */
     /* Basic Controls for all subclasses */
-    this.controls = [
-      new MyFullScreen(),
-      new ZoomSlider(),
-      new RotateControl(),
-      new CenterMapControl({ extent: this.extent }),
-      new MyZoom({
-        delta: 0.5,
-        imageExtent: this.extent,
-      }),
-    ];
+    viewer.controls = makeDefaultControls(viewer);
     for (const ctrl of viewer.controls) {
       viewer.map.addControl(ctrl);
     }

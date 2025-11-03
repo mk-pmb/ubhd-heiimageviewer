@@ -1,7 +1,7 @@
 // controls.js
 import { containsCoordinate, getCenter } from 'ol/extent.js';
 import { Collection } from 'ol';
-import { Control, FullScreen, Zoom } from 'ol/control.js';
+import { Control, FullScreen, Zoom, ZoomSlider } from 'ol/control.js';
 import { Draw } from 'ol/interaction.js';
 import { noModifierKeys, primaryAction } from 'ol/events/condition.js';
 
@@ -517,3 +517,19 @@ export class ShapeTransform extends Control {
     this.element.classList.add('hide');
   }
 }
+
+
+
+export function makeDefaultControls(viewer) {
+  const dc = [
+    new MyFullScreen(),
+    new ZoomSlider(),
+    new RotateControl(),
+    new CenterMapControl({ extent: viewer.extent }),
+    new MyZoom({
+      delta: 0.5,
+      imageExtent: viewer.extent,
+    }),
+  ];
+  return dc;
+};
