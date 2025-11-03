@@ -5,9 +5,8 @@ import { Control, FullScreen, Zoom } from 'ol/control.js';
 import { Draw } from 'ol/interaction.js';
 import { noModifierKeys, primaryAction } from 'ol/events/condition.js';
 
-import { createStyle } from './Layer.js';
 import i18n from './transl.js';
-
+import layerStyles from './layerStyles.js';
 import logger from './logger.js';
 import shapeDefs from './shapeDefs.js';
 import variables from './variables.js';
@@ -319,7 +318,7 @@ export class DrawBase extends Control {
       this.drawFeatNum = drawFeatNum;
       const { feature } = e;
       const color = layer.get('color');
-      const style = createStyle(color, 0.1);
+      const style = layerStyles.create(color, 0.1);
       if (feature.get('modifyGeometry')) {
         style.setGeometry(function setGeom(feat) {
           const modifyGeometry = feat.get('modifyGeometry');

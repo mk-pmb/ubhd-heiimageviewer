@@ -17,10 +17,13 @@ import './hei-image-viewer.css';
 
 import { CenterMapControl, myFullScreen, myZoom, RotateControl, WheelControl } from './controls.js';
 import { fade } from './fade.js';
-import { visibilityBaseStyle, visibilityStrongStyle } from './Layer.js';
+
 import i18n from './transl.js';
 import parseShapes from './parseShapes.js';
 import variables from './variables.js';
+import layerStyles from './layerStyles.js';
+
+const { visibilityBaseStyle, visibilityStrongStyle } = layerStyles;
 
 
 /**

@@ -7,8 +7,13 @@ import Transform from 'ol-ext/interaction/Transform.js';
 import { ImageBase } from './ImageBase.js';
 import variables from './variables.js';
 import shapeDefs from './shapeDefs.js';
-import { Layer, visibilityBaseStyle } from './Layer.js';
+import { Layer } from './Layer.js';
 import { DrawBase, RemoveFeature, SelectMode, ShapeTransform } from './controls.js';
+
+
+import layerStyles from './layerStyles.js';
+
+const { visibilityBaseStyle } = layerStyles;
 
 
 /** @class

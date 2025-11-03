@@ -1,7 +1,7 @@
-import { Fill, Stroke, Style } from 'ol/style.js';
-import parseCssColorString from 'parse-color';
-
+import layerStyles from './layerStyles.js';
 import variables from './variables.js';
+
+const { visibilityBaseStyle } = layerStyles;
 
 
 class Layer {
@@ -57,52 +57,5 @@ class Layer {
   }
 }
 
-const FeatureInvisibleStyle = new Style({
-  stroke: new Stroke({
-    color: 'rgba(0,0,0,0)',
-    width: 10,
-  }),
-  fill: new Fill({
-    color: 'rgba(0,0,0,0)',
-  }),
-});
 
-function visibilityBaseStyle(display, color, opacity = 0, width = 1.25) {
-  if (display == variables.ZONES_SHOW_ALL) {
-    return createStyle(color, opacity);
-  }
-  if (display == variables.ZONES_SHOW_NONE || display == variables.ZONES_SHOW_DEFAULT) {
-    return FeatureInvisibleStyle;
-  }
-  console.warn('Invalid display value: ', display);
-  return FeatureInvisibleStyle;
-
-}
-
-function visibilityStrongStyle(visibility, color, opacity = 0.1, width = 1.75) {
-  if (visibility == variables.ZONES_SHOW_ALL) {
-    return createStyle(color, opacity, width);
-  }
-  if (visibility == variables.ZONES_SHOW_DEFAULT) {
-    return createStyle(color, opacity, width);
-  }
-  if (visibility == variables.ZONES_SHOW_NONE) {
-    return FeatureInvisibleStyle;
-  }
-  console.warn('Invalid display value: ', visibility);
-  return FeatureInvisibleStyle;
-
-}
-
-function createStyle(color, opacity, width = 1) {
-  const rgb = (Array.isArray(color) ? color : parseCssColorString(color).rgb
-  ).slice(0, 3).join(',');
-  const style = new Style({
-    stroke: new Stroke({ color: 'rgb(' + rgb + ')', width }),
-    fill: new Fill({ color: 'rgba(' + rgb + ',' + opacity + ')' }),
-  });
-  return style;
-}
-
-
-export { Layer, visibilityBaseStyle, visibilityStrongStyle, createStyle, FeatureInvisibleStyle };
+export { Layer };
