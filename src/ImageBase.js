@@ -246,34 +246,35 @@ class ImageBase {
   }
 
   createViewer() {
+    const viewer = this;
+
     /* Set global css properties for the overview map and zoom slider
        based on the desired size */
     document.documentElement.style.setProperty(
       '--overview-map-size',
-      this.overviewMapSize + 'px',
+      viewer.overviewMapSize + 'px',
     );
     document.documentElement.style.setProperty(
       '--slider-left',
-      this.overviewMapSize + 5 + 'px',
+      viewer.overviewMapSize + 5 + 'px',
     );
-    const { map } = this;
-    map.setLayers([...this.imageLayers]);
+    const { map } = viewer;
+    map.setLayers([...viewer.imageLayers]);
 
     /* Make the container a div inside the once selected by the user */
     const containerSub = document.createElement('div');
     containerSub.style.backgroundColor = '#666666';
     containerSub.style.width = '100%';
     containerSub.style.height = '100%';
-    this.container.appendChild(containerSub);
+    viewer.container.appendChild(containerSub);
     map.setTarget(containerSub);
-    this.container = containerSub;
+    viewer.container = containerSub;
 
     /* Initial View */
-    const initialView = this.createInitialView(this.resolution);
+    const initialView = viewer.createInitialView(viewer.resolution);
     map.setView(initialView);
 
     /* INTERACTIONS */
-    const viewer = this;
     const interactionExtensions = [
       makeMapWheelHandler(viewer),
     ];
@@ -291,39 +292,39 @@ class ImageBase {
         imageExtent: this.extent,
       }),
     ];
-    for (const ctrl of this.controls) {
-      this.map.addControl(ctrl);
+    for (const ctrl of viewer.controls) {
+      viewer.map.addControl(ctrl);
     }
-    this.updateControls(this.lang);
+    viewer.updateControls(viewer.lang);
 
     /* OVERVIEW MAP CONTROL */
 
     const overviewResolution = Math.max(
-      Math.abs(this.extent[1]),
-      Math.abs(this.extent[2]),
-    ) / this.overviewMapSize;
+      Math.abs(viewer.extent[1]),
+      Math.abs(viewer.extent[2]),
+    ) / viewer.overviewMapSize;
     const overviewMapControl = new OverviewMap({
       className: 'ol-overviewmap ol-custom-overviewmap',
-      layers: [this.overviewLayer],
+      layers: [viewer.overviewLayer],
       label: i18n.buttonIconAndLabel('overviewMapHidden', 'span'),
       collapseLabel: i18n.buttonIconAndLabel('overviewMapVisible', 'span'),
       tipLabel: i18n('overviewMapVisible'),
-      collapsed: this.overviewMapCollapsed,
+      collapsed: viewer.overviewMapCollapsed,
       view: new View({
-        projection: this.projection,
+        projection: viewer.projection,
         resolutions: [overviewResolution],
-        extent: this.extent,
+        extent: viewer.extent,
         constrainResolution: true,
       }),
     });
-    this.overviewMapControl = overviewMapControl;
+    viewer.overviewMapControl = overviewMapControl;
     map.addControl(overviewMapControl);
     /* still handling overview map... */
-    const overvmap = this.container.getElementsByClassName(
+    const overvmap = viewer.container.getElementsByClassName(
       'ol-custom-overviewmap')[0];
     const overviewCanvas = overvmap.querySelector('.ol-overviewmap-map');
     const overviewButton = overvmap.querySelector('button');
-    const zoomslider =  this.container.getElementsByClassName(
+    const zoomslider =  viewer.container.getElementsByClassName(
       'ol-zoomslider')[0];
 
     zoomslider.addEventListener('mouseover', (e) => {
@@ -347,7 +348,7 @@ class ImageBase {
     map.on('moveend', (m) => {
       const view = map.getView();
       const mapviewport = view.calculateExtent(map.getSize());
-      if (!intersects(mapviewport, this.extent)) {
+      if (!intersects(mapviewport, viewer.extent)) {
         view.setCenter(prevPos);
       }
       /* Overview map reset timer */
@@ -355,7 +356,6 @@ class ImageBase {
       overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
     });
-    const selfO = this;
     overviewButton.onclick = function () {
       const isCurrentlyCollapsed = overviewMapControl.getCollapsed();
       if (isCurrentlyCollapsed) {
@@ -380,33 +380,33 @@ class ImageBase {
       zoomslider.style.visibility = 'visible';
     }
 
-    this.hoveredFeatures = [];
-    this.selectedFeature = new Collection();
-    this.pointerMoveRefresh();
+    viewer.hoveredFeatures = [];
+    viewer.selectedFeature = new Collection();
+    viewer.pointerMoveRefresh();
     /* Unhighlight features when leaving canvas */
-    const viewport = this.map.getViewport();
+    const viewport = viewer.map.getViewport();
     viewport.addEventListener('mouseout', (e) => {
-      for (const feat of this.hoveredFeatures) {
-        this.unhighlightFeature(feat.id_);
-        this.hoveredFeatures = [];
+      for (const feat of viewer.hoveredFeatures) {
+        viewer.unhighlightFeature(feat.id_);
+        viewer.hoveredFeatures = [];
       }
     });
 
     /* Initial state setup */
-    this.listeners = {};
-    this.#createChangeEvents();
-    this.updateInteractions();
+    viewer.listeners = {};
+    viewer.#createChangeEvents();
+    viewer.updateInteractions();
 
     /* Return the viewer */
-    map.set('heiv', this);
+    map.set('heiv', viewer);
   }
 
   pointerMoveRefresh() {
-    const { selectedFeature } = this;
     const viewer = this;
-    this.map.on('pointermove', (e) => {
-      for (let i = 0; i < this.hoveredFeatures.length; i++) {
-        const hoveredFeature = this.hoveredFeatures[i];
+    const { selectedFeature } = viewer;
+    viewer.map.on('pointermove', (e) => {
+      for (let i = 0; i < viewer.hoveredFeatures.length; i++) {
+        const hoveredFeature = viewer.hoveredFeatures[i];
         if (hoveredFeature !== null) {
           let isSelected = false;
           selectedFeature.forEach((sf) => {
@@ -420,8 +420,8 @@ class ImageBase {
           hoveredFeature.setStyle(visibilityBaseStyle(display, color));
         }
       }
-      this.hoveredFeatures = [];
-      this.map.forEachFeatureAtPixel(e.pixel, function (f) {
+      viewer.hoveredFeatures = [];
+      viewer.map.forEachFeatureAtPixel(e.pixel, function (f) {
         if (f.id_ == undefined) { return; }
         let isSelected = false;
         selectedFeature.forEach((sf) => {
@@ -440,14 +440,14 @@ class ImageBase {
 
 
   #createChangeEvents() {
-    this.map.getView().on('change', () => {
-      this.triggerEvent('change:view');
-    });
-    this.map.getView().on('change:rotation', () => {
-      this.triggerEvent('change:view');
-    });
     const viewer = this;
-    this.map.getControls().forEach((c) => {
+    viewer.map.getView().on('change', () => {
+      viewer.triggerEvent('change:view');
+    });
+    viewer.map.getView().on('change:rotation', () => {
+      viewer.triggerEvent('change:view');
+    });
+    viewer.map.getControls().forEach((c) => {
       if (c instanceof WheelControl || c instanceof OverviewMap) {
         c.element.addEventListener('click', () => {
           viewer.triggerEvent('change:view');
@@ -516,21 +516,21 @@ class ImageBase {
   }
 
   createInitialView(initialResolution = null) {
-    const size = this.map.getSize();
+    const viewer = this;
+    const size = viewer.map.getSize();
     const canvasWidth = size[0];
     const canvasHeight = size[1];
-    const { projection } = this;
+    const { projection } = viewer;
     const extent = projection.extent_;
     const imageWidth = extent[2];
     const imageHeight = Math.abs(extent[1]);
-    const self = this;
     const w = imageWidth / canvasWidth;
     const h = imageHeight / canvasHeight;
     const fullResolution = Math.max(w, h);
-    this.map.set('fullResolution', fullResolution);
+    viewer.map.set('fullResolution', fullResolution);
     if (initialResolution == null) {
       initialResolution = (() => {
-        switch (self.zoom) {
+        switch (viewer.zoom) {
           case variables.ZOOM_COVER:
             return Math.min(w, h);
           case variables.ZOOM_MIN:
@@ -540,7 +540,7 @@ class ImageBase {
         }
       })();
     }
-    return this.initialView(
+    return viewer.initialView(
       extent,
       initialResolution,
       fullResolution,
