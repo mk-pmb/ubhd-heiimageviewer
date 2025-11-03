@@ -37,18 +37,47 @@ const { visibilityBaseStyle, visibilityStrongStyle } = layerStyles;
 class ImageBase {
   /**
    * Create and instance of the viewer on an HTML element.
-   * @param {String} name - The name of the viewer, in case it needs to be identified.
-   * @param {Array} images - An array of the string URL that the viewer uses for different sizes.
-   * @param {Array} sizes - An array of arrays with the width and height of each image. There should be an array of sizes pro image.
-   * @param {HTMLElement} container - The DOM Element where the viewer will be hooked.
-   * @param {Object} annotations - The vector zones to be displayed on the viewer, for line alignment, ocr, etc. Each annotation is an array with the keys *name* and *coordinates*. Each annotation will be transformed into an ol.Feature. The *name* is the main identifier for this feature. The *coordinates* are the points that define the polygon and must have the structure of a list of paired values. Each pair represents a point and is separated by whitespace. The x and y coordinates of the point are separated by a comma.: [100,200 500,344]
-   * @param {String} position - The starting value for the position of the image. Possible values are 'center', 'top' and 'top-left'.
-   * @param {String} zoom - The starting value for the zoom on the image. Possible values are 'min' (see the whole image) and 'cover' (the image is zoomed so to the minimum level that covers the whole canvas).
-   * @param {Number} overviewMapSize - The size of the overview map in pixels. Default is 150.
-   * @param {String} lang - Language for the menu options. 'en' or 'de'. Default 'de'.
-   * @param {String} properties - Contains the properties 'resolution', 'wheelMode' and 'rotation' that can be optionally given at the start.
-   * @param {Boolean} autoSize - If set to true, the width of the container will be preserved, and the image will fit perfectly in it. The height of the container will be automatically computed, so that the image fills it completely. In this case the parameter "zoom" will be irrelevant. If "properties.resolution" is set, that will override this behaviour
-   * @param {Number} maxCoordinateDecimals - How many decimals to consider and save in the coordinates for vector zones
+   * @param {String} name - The name of the viewer, in case it needs
+   *   to be identified.
+   * @param {Array} images - An array of the string URL that the
+   *   viewer uses for different sizes.
+   * @param {Array} sizes - An array of arrays with the width and
+   *   height of each image. There should be an array of sizes pro
+   *   image.
+   * @param {HTMLElement} container - The DOM Element where the
+   *   viewer will be hooked.
+   * @param {Object} annotations - The vector zones to be displayed
+   *   on the viewer, for line alignment, ocr, etc. Each annotation
+   *   is an array with the keys *name* and *coordinates*. Each
+   *   annotation will be transformed into an ol.Feature. The *name*
+   *   is the main identifier for this feature. The *coordinates*
+   *   are the points that define the polygon and must have the
+   *   structure of a list of paired values. Each pair represents a
+   *   point and is separated by whitespace. The x and y coordinates
+   *   of the point are separated by a comma.: [100,200 500,344]
+   * @param {String} position - The starting value for the position
+   *   of the image. Possible values are 'center', 'top' and
+   *   'top-left'.
+   * @param {String} zoom - The starting value for the zoom on the
+   *   image. Possible values are 'min' (see the whole image) and
+   *   'cover' (the image is zoomed so to the minimum level that
+   *   covers the whole canvas).
+   * @param {Number} overviewMapSize - The size of the overview map
+   *   in pixels. Default is 150.
+   * @param {String} lang - Language for the menu options. 'en' or
+   *   'de'. Default 'de'.
+   * @param {String} properties - Contains the properties
+   *   'resolution', 'wheelMode' and 'rotation' that can be
+   *   optionally given at the start.
+   * @param {Boolean} autoSize - If set to true, the width of the
+   *   container will be preserved, and the image will fit perfectly
+   *   in it. The height of the container will be automatically
+   *   computed, so that the image fills it completely. In this case
+   *   the parameter "zoom" will be irrelevant. If
+   *   "properties.resolution" is set, that will override this
+   *   behaviour
+   * @param {Number} maxCoordinateDecimals - How many decimals to
+   *   consider and save in the coordinates for vector zones
    */
 
   heiViewerLayers = [];
@@ -213,7 +242,8 @@ class ImageBase {
   }
 
   createViewer() {
-    /* Set global css properties for the overview map and zoom slider based on the desired size */
+    /* Set global css properties for the overview map and zoom slider
+       based on the desired size */
     document.documentElement.style.setProperty(
       '--overview-map-size',
       this.overviewMapSize + 'px',
