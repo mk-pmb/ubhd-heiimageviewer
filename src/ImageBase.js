@@ -126,7 +126,11 @@ class ImageBase {
 
   async #fetchIIIFInfo(imageInfoUrl) {
     try {
-      const response = await fetch(imageInfoUrl);
+      /* Workaround 2025-11-03: The n/* rules fail to detect that in
+        package.json we declared our environment to be a browser. */
+      // eslint-disable-next-line n/no-unsupported-features/node-builtins
+      const response = await window.fetch(imageInfoUrl);
+
       const imageInfo = await response.json();
       const iiifOptions = new IIIFInfo(imageInfo).getTileSourceOptions();
 
