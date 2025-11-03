@@ -2,13 +2,13 @@
 import { Collection, View } from 'ol';
 import OlMap from 'ol/Map.js';
 import { OverviewMap, ZoomSlider } from 'ol/control.js';
-import { defaults as defaultInteractions, MouseWheelZoom } from 'ol/interaction.js';
+import { defaults as defaultInteractions } from 'ol/interaction.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import ImageLayer from 'ol/layer/Image.js';
 import Static from 'ol/source/ImageStatic.js';
 import { Projection } from 'ol/proj.js';
-import { containsCoordinate, getCenter, intersects } from 'ol/extent.js';
+import { getCenter, intersects } from 'ol/extent.js';
 import { IIIFInfo } from 'ol/format.js';
 import { IIIF } from 'ol/source.js';
 import TileLayer from 'ol/layer/Tile.js';
@@ -19,6 +19,7 @@ import { CenterMapControl, MyFullScreen, MyZoom, RotateControl, WheelControl } f
 import { fade } from './fade.js';
 
 import i18n from './transl.js';
+import makeMapWheelHandler from './mapWheelHandler.js';
 import parseShapes from './parseShapes.js';
 import variables from './variables.js';
 import layerStyles from './layerStyles.js';
@@ -273,31 +274,10 @@ class ImageBase {
 
     /* INTERACTIONS */
     const viewer = this;
-    const variableWheel = new MouseWheelZoom({
-      condition(e) {
-        if (e.type != 'wheel') {
-          return;
-        }
-        if (viewer.wheelMode == variables.MW_VERTICAL) {
-          e.originalEvent.preventDefault();
-          const view = map.getView();
-          const center = view.getCenter();
-          const variation = 50;
-          if (e.originalEvent.deltaY < 0) {
-            view.setCenter([center[0], center[1] + variation]);
-          }
-          if (e.originalEvent.deltaY > 0) {
-            view.setCenter([center[0], center[1] - variation]);
-          }
-          prevPos = null;
-          return false;
-        }
-        const coord = map.getCoordinateFromPixel(e.pixel);
-        return !!containsCoordinate(viewer.extent, coord);
-      },
-    });
-    const interactions = map.getInteractions();
-    interactions.extend([variableWheel]);
+    const interactionExtensions = [
+      makeMapWheelHandler(viewer),
+    ];
+    map.getInteractions().extend(interactionExtensions);
 
     /* CONTROLS */
     /* Basic Controls for all subclasses */
