@@ -6,7 +6,7 @@ import { WheelControl } from './controls.js';
 /** @class
  *@classdesc Main class for the viewer.
  * */
-class imageViewer extends ImageBase {
+class ImageViewer extends ImageBase {
   constructor({ ...rest }) {
     super({ ...rest });
   }
@@ -25,4 +25,4 @@ class imageViewer extends ImageBase {
 }
 
 
-export { imageViewer };
+export { ImageViewer };

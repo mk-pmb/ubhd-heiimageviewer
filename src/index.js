@@ -5,7 +5,7 @@ import './hei-image-viewer.css';
 import './compat-shims.js';
 
 import { ImageDraw } from './ImageDraw.js';
-import { imageViewer } from './ImageViewer.js';
+import { ImageViewer } from './ImageViewer.js';
 import { Layer } from './Layer.js';
 import i18n from './transl.js';
 import variables from './variables.js';
@@ -13,7 +13,7 @@ import variables from './variables.js';
 export {
   i18n,
   ImageDraw,
-  imageViewer,
+  ImageViewer,
   Layer,
   variables,
 };

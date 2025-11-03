@@ -30,10 +30,10 @@ const variables = {
   /* Value of position of the image at the top of the canvas and the left
    * side of the image on the left margin of the canvas. */
   'POSITION_TOP_LEFT': 'top-left',
-  /** The property of the {@link module:heiImageViewer#imageViewer} object
+  /** The property of the {@link module:heiImageViewer#ImageViewer} object
    * that stores the value of the scroll, zoom or vertical. */
   'PROPERTY_WHEEL': 'wheelMode',
-  /** The property of the {@link module:heiImageViewer#imageViewer} object
+  /** The property of the {@link module:heiImageViewer#ImageViewer} object
    * that stores the value of the visibility of the zones. */
   'PROPERTY_ZONES': 'showZones',
   /** The value property of PROPERTY_WHEEL when it moves vertically. */

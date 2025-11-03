@@ -15,7 +15,7 @@ import TileLayer from 'ol/layer/Tile.js';
 
 import './hei-image-viewer.css';
 
-import { CenterMapControl, myFullScreen, myZoom, RotateControl, WheelControl } from './controls.js';
+import { CenterMapControl, MyFullScreen, MyZoom, RotateControl, WheelControl } from './controls.js';
 import { fade } from './fade.js';
 
 import i18n from './transl.js';
@@ -268,11 +268,11 @@ class ImageBase {
     /* CONTROLS */
     /* Basic Controls for all subclasses */
     this.controls = [
-      new myFullScreen(),
+      new MyFullScreen(),
       new ZoomSlider(),
       new RotateControl(),
       new CenterMapControl({ extent: this.extent }),
-      new myZoom({
+      new MyZoom({
         delta: 0.5,
         imageExtent: this.extent,
       }),

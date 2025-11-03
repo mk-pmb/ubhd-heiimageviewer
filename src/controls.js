@@ -161,7 +161,7 @@ export class WheelControl extends Control {
 }
 
 
-export class myZoom extends Zoom {
+export class MyZoom extends Zoom {
 
   constructor(options) {
     super(options);
@@ -221,7 +221,7 @@ export class myZoom extends Zoom {
 }
 
 
-export class myFullScreen extends FullScreen {
+export class MyFullScreen extends FullScreen {
   constructor() {
     super();
     const btn = this.element.querySelector('.ol-full-screen button');
