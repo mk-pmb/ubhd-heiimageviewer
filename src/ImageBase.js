@@ -35,11 +35,6 @@ const { visibilityBaseStyle, visibilityStrongStyle } = layerStyles;
  *@classdesc Main class for the viewer.
  * */
 class ImageBase {
-  heiViewerLayers = [];
-
-  imageLayers = [];
-
-  maxZoom = 8;
   /**
    * Create and instance of the viewer on an HTML element.
    * @param {String} name - The name of the viewer, in case it needs to be identified.
@@ -55,6 +50,12 @@ class ImageBase {
    * @param {Boolean} autoSize - If set to true, the width of the container will be preserved, and the image will fit perfectly in it. The height of the container will be automatically computed, so that the image fills it completely. In this case the parameter "zoom" will be irrelevant. If "properties.resolution" is set, that will override this behaviour
    * @param {Number} maxCoordinateDecimals - How many decimals to consider and save in the coordinates for vector zones
    */
+
+  heiViewerLayers = [];
+
+  imageLayers = [];
+
+  maxZoom = 8;
 
   static reqiredParams = [
     'container',
