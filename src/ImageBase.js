@@ -15,8 +15,10 @@ import TileLayer from 'ol/layer/Tile.js';
 
 import './hei-image-viewer.css';
 
-import { CenterMapControl, MyFullScreen, MyZoom, RotateControl, WheelControl } from './controls.js';
+import { CenterMapControl, MyFullScreen, MyZoom, RotateControl } from './controls.js';
 import { fade } from './fade.js';
+
+import todoRefactorInstanceof from './todo.refactorInstanceof.js';
 
 import i18n from './transl.js';
 import makeMapWheelHandler from './mapWheelHandler.js';
@@ -448,7 +450,7 @@ class ImageBase {
       viewer.triggerEvent('change:view');
     });
     viewer.map.getControls().forEach((c) => {
-      if (c instanceof WheelControl || c instanceof OverviewMap) {
+      if (todoRefactorInstanceof(c)) {
         c.element.addEventListener('click', () => {
           viewer.triggerEvent('change:view');
         });
