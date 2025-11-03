@@ -3,15 +3,15 @@ import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { addCoordinateTransforms, Projection } from 'ol/proj.js';
 
-/** This is the main function to parse the vector shapes to be displayed in the map.
- * It creates the Feature Collection to add to the source.
+/** This is the main function to parse the vector shapes to be displayed in
+ * the map. It creates the Feature Collection to add to the source.
  * @param {Array} annotations - Annotations object
  * @return {Collection<Feature>} */
 export default (annotations, projection) => {
   const featuresOrig = annotations.features;
   const layerType = annotations.type;
   const layerName = annotations.name;
-  const img_width = projection.extent_[2];
+  const imgWidth = projection.extent_[2];
   const { color } = annotations;
   /* Neccesary to move feature coordinates from bottom to top */
   const invertedProjection = new Projection({});
@@ -24,7 +24,8 @@ export default (annotations, projection) => {
     });
   const features = [];
   for (let i = 0; i < featuresOrig.length; i++) {
-    const feats = createFeatures(featuresOrig[i], layerType, img_width, color, layerName);
+    const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color,
+      layerName);
     for (const featureElement of feats) {
       const geometry = featureElement.getGeometry();
       geometry.transform(projection, invertedProjection);
@@ -35,13 +36,13 @@ export default (annotations, projection) => {
 };
 
 
-function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
-  const feat_options = {};
+function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
+  const featOptions = {};
   const multiFeature = feat.multiFeature ? feat.multiFeature : false;
-  feat_options.featName = feat.name;
-  feat_options.layerName = layerName;
-  feat_options.layerType = layerType;
-  feat_options.color = feat.color ? feat.color : color;
+  featOptions.featName = feat.name;
+  featOptions.layerName = layerName;
+  featOptions.layerType = layerType;
+  featOptions.color = feat.color ? feat.color : color;
   const { shapes } = feat;
   const allGeometriesInThisFeature = [];
   let allTypesInThisFeature = [];
@@ -55,14 +56,13 @@ function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
         if (typeof source === 'string') {
           source = parseSvg(source);
         }
-        [geometry, allTypesInThisFeature] = convertSvgSource(source, img_width);
+        [geometry, allTypesInThisFeature] = convertSvgSource(source, imgWidth);
         break;
       case 'tei':
         geometry = convertTeiSource(source);
         break;
       default:
-        console.warn(`You are using an invalid format for your features to be drawn on canvas: "${format}"`);
-        break;
+        throw new Error('Unsupported feature format: ' + format);
     }
     allGeometriesInThisFeature.push(geometry);
   }
@@ -71,23 +71,23 @@ function createFeatures(feat, layerType, img_width, color = '#f00', layerName) {
   const result = [];
   if (geometries.length > 1) {
     if (multiFeature) {
-      feat_options.featureGeometry = new GeometryCollection(geometries);
-      feat_options.featureType = 'collection';
-      const feature = createSingleFeature(feat_options);
+      featOptions.featureGeometry = new GeometryCollection(geometries);
+      featOptions.featureType = 'collection';
+      const feature = createSingleFeature(featOptions);
       result.push(feature);
     } else {
       for (let i = 0; i < geometries.length; i++) {
-        feat_options.featureGeometry = geometries[i];
-        feat_options.featureType = allTypesInThisFeature[i];
-        feat_options.featName += '_' + i;
-        const feature = createSingleFeature(feat_options);
+        featOptions.featureGeometry = geometries[i];
+        featOptions.featureType = allTypesInThisFeature[i];
+        featOptions.featName += '_' + i;
+        const feature = createSingleFeature(featOptions);
         result.push(feature);
       }
     }
   } else {
-    feat_options.featureGeometry = geometries[0];
-    feat_options.featureType = allTypesInThisFeature[0];
-    const feature = createSingleFeature(feat_options);
+    featOptions.featureGeometry = geometries[0];
+    featOptions.featureType = allTypesInThisFeature[0];
+    const feature = createSingleFeature(featOptions);
     result.push(feature);
   }
   return result;
@@ -114,12 +114,12 @@ function convertTeiSource(source, coordDivisor = 1) {
   return [new Polygon(coordinates)];
 }
 
-function convertSvgSource(source, img_width, coordDivisor = 1) {
+function convertSvgSource(source, imgWidth, coordDivisor = 1) {
   const divisor = Number(coordDivisor);
   const svgPrimitiveContainers = source.children[0].children;
   const svgPrimitiveTypes = [];
   const svgWidth = source.children[0].getAttribute('width');
-  const scaleFactor = img_width / svgWidth;
+  const scaleFactor = imgWidth / svgWidth;
   const svgGeometry = [];
   for (const svgPrimitiveContainer of svgPrimitiveContainers) {
     const svgPrimitiveType = svgPrimitiveContainer.nodeName;

@@ -44,8 +44,8 @@ function addRotationButton(control, clockwise) {
 
 
 export class RotateControl extends Control {
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const element = document.createElement('div');
 
     super({
@@ -83,10 +83,10 @@ export class RotateControl extends Control {
 
 export class CenterMapControl extends Control {
   /**
-   * @param {Object} [opt_options] Control options.
+   * @param {Object} [optionalOptions] Control options.
    */
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const element = document.createElement('div');
 
     super({
@@ -118,10 +118,10 @@ export class CenterMapControl extends Control {
 
 export class WheelControl extends Control {
   /**
-   * @param {Object} [opt_options] Control options.
+   * @param {Object} [optionalOptions] Control options.
    */
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const initialWheelMode = options.wheelMode || variables.MW_ZOOM;
     const element = document.createElement('div');
     super({
@@ -232,8 +232,8 @@ export class MyFullScreen extends FullScreen {
 
 
 export class DrawBase extends Control {
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const { shape } = options;
     if (!shape) { throw new Error('No shape defined for draw button'); }
 
@@ -348,7 +348,10 @@ export class DrawBase extends Control {
 
 
 export class SelectMode extends Control {
-  constructor(opt_options) {
+  constructor(optionalOptions) {
+    const unsupp = Object.keys(optionalOptions || false).join(', ');
+    if (unsupp) { throw new Error('Unsupported options: ' + unsupp); }
+
     const button = i18n.buttonIconAndLabel('selectShape');
     const element = document.createElement('div');
     element.className = 'heiv-select ol-control';
@@ -412,8 +415,8 @@ export class SelectMode extends Control {
 
 
 export class RemoveFeature extends Control {
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const button = i18n.buttonIconAndLabel('deleteShape');
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind heiv-trash heiv-trash-inactive ol-control';
@@ -448,8 +451,8 @@ export class RemoveFeature extends Control {
 
 
 export class ShapeTransform extends Control {
-  constructor(opt_options) {
-    const options = opt_options || {};
+  constructor(optionalOptions) {
+    const options = optionalOptions || {};
     const buttonTransform = i18n.buttonIconAndLabel('moveScaleRotate');
     buttonTransform.classList.add('heiv-shapedit-transform');
     self.buttonTransform = buttonTransform;

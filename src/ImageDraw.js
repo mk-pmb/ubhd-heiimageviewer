@@ -65,15 +65,15 @@ class ImageDraw extends ImageBase {
     });
 
     /* Create a Default Draw Layer just in case */
-    const draw_layer_obj_default = new Layer({
-      name: 'draw_layer_default',
+    const drawLayerObjDefault = new Layer({
+      name: 'drawLayerDefault',
       display: variables.ZONES_SHOW_ALL,
       color: '#F00',
     });
-    this.heiViewerLayers.push(draw_layer_obj_default);
-    const draw_layer_default = this.addLayer(draw_layer_obj_default);
-    map.set('drawLayer', draw_layer_default);
-    const drawSource = draw_layer_default.getSource();
+    this.heiViewerLayers.push(drawLayerObjDefault);
+    const drawLayerDefault = this.addLayer(drawLayerObjDefault);
+    map.set('drawLayer', drawLayerDefault);
+    const drawSource = drawLayerDefault.getSource();
     drawSource.on('addfeature', (e) => {
       this.triggerEvent('draw:end');
     });

@@ -184,10 +184,10 @@ class ImageBase {
     this.images = zipped.map(item => item.url);
     this.sizes = zipped.map(item => item.size);
     const bigImg = this.sizes.slice(-1);
-    const image_width = bigImg[0][0];
-    const image_height = bigImg[0][1];
+    const imageWidth = bigImg[0][0];
+    const imageHeight = bigImg[0][1];
 
-    const extent = (this.extent = [0, -image_height, image_width, 0]); // Format to get 0,0 at top left corner
+    const extent = (this.extent = [0, -imageHeight, imageWidth, 0]); // Format to get 0,0 at top left corner
     const projection = (this.projection = new Projection({
       code: 'inverted',
       units: 'pixels',
@@ -545,15 +545,15 @@ class ImageBase {
 
   createInitialView(initialResolution = null) {
     const size = this.map.getSize();
-    const canvas_width = size[0];
-    const canvas_height = size[1];
+    const canvasWidth = size[0];
+    const canvasHeight = size[1];
     const { projection } = this;
     const extent = projection.extent_;
-    const image_width = extent[2];
-    const image_height = Math.abs(extent[1]);
+    const imageWidth = extent[2];
+    const imageHeight = Math.abs(extent[1]);
     const self = this;
-    const w = image_width / canvas_width;
-    const h = image_height / canvas_height;
+    const w = imageWidth / canvasWidth;
+    const h = imageHeight / canvasHeight;
     const fullResolution = Math.max(w, h);
     this.map.set('fullResolution', fullResolution);
     if (initialResolution == null) {
@@ -573,10 +573,10 @@ class ImageBase {
       initialResolution,
       fullResolution,
       projection,
-      image_width,
-      image_height,
-      canvas_width,
-      canvas_height,
+      imageWidth,
+      imageHeight,
+      canvasWidth,
+      canvasHeight,
     );
   }
 
@@ -587,10 +587,10 @@ class ImageBase {
     initialResolution,
     fullResolution,
     projection,
-    image_width,
-    image_height,
-    canvas_width,
-    canvas_height,
+    imageWidth,
+    imageHeight,
+    canvasWidth,
+    canvasHeight,
   ) {
     let mapCenter;
     switch (this.position) {
@@ -598,13 +598,13 @@ class ImageBase {
         mapCenter = getCenter(extent);
         break;
       case variables.POSITION_TOP:
-        mapCenter = [image_width / 2, (-canvas_height * initialResolution) / 2];
+        mapCenter = [imageWidth / 2, (-canvasHeight * initialResolution) / 2];
         break;
       case variables.POSITION_TOP_LEFT:
         mapCenter = [
-          image_width / 2
-            + ((canvas_width * initialResolution) / 2 - image_width / 2),
-          -((canvas_height * initialResolution) / 2),
+          imageWidth / 2
+            + ((canvasWidth * initialResolution) / 2 - imageWidth / 2),
+          -((canvasHeight * initialResolution) / 2),
         ];
         break;
       default:
@@ -616,10 +616,10 @@ class ImageBase {
         mapCenter = getCenter(extent);
     }
     const viewExtent = [
-      -(canvas_width + image_width) * fullResolution,
-      -(canvas_height + image_height) * fullResolution,
-      (canvas_width + image_width) * fullResolution,
-      (canvas_height + image_height) * fullResolution,
+      -(canvasWidth + imageWidth) * fullResolution,
+      -(canvasHeight + imageHeight) * fullResolution,
+      (canvasWidth + imageWidth) * fullResolution,
+      (canvasHeight + imageHeight) * fullResolution,
     ];
     return new View({
       projection,
@@ -926,8 +926,8 @@ class ImageBase {
 
   /**
    * Sets the size of the container to fit image exactly */
-  setContainerSize(container, image_height, res) {
-    container.style.height = (image_height / res).toString() + 'px';
+  setContainerSize(container, imageHeight, res) {
+    container.style.height = (imageHeight / res).toString() + 'px';
   }
 
   updateInteractions() {}
