@@ -218,7 +218,6 @@ class ImageBase {
       this.imageLayers.push(imgLayer);
     }
     return this.createViewer();
-
   }
 
   fail(why) {
@@ -420,7 +419,6 @@ class ImageBase {
 
     /* Return the viewer */
     map.set('heiv', this);
-
   }
 
   pointerMoveRefresh() {
@@ -432,35 +430,24 @@ class ImageBase {
         if (hoveredFeature !== null) {
           let isSelected = false;
           selectedFeature.forEach((sf) => {
-            if (hoveredFeature.id_ == sf.id_) {
-              isSelected = true;
-            }
+            if (hoveredFeature.id_ == sf.id_) { isSelected = true; }
           });
-          if (isSelected == true) {
-            continue;
-          }
+          if (isSelected == true) { continue; }
           const { color } = hoveredFeature.get('properties');
           const correspLayerName = hoveredFeature.get('properties').layerName;
-          const correspLayer =            selfObject.#findFeatureLayer(correspLayerName)[0];
+          const correspLayer = selfObject.#findFeatureLayer(correspLayerName)[0];
           const { display } = correspLayer;
           hoveredFeature.setStyle(visibilityBaseStyle(display, color));
         }
       }
       this.hoveredFeatures = [];
       this.map.forEachFeatureAtPixel(e.pixel, function (f) {
-
-        if (f.id_ == undefined) {
-          return;
-        }
+        if (f.id_ == undefined) { return; }
         let isSelected = false;
         selectedFeature.forEach((sf) => {
-          if (f.id_ == sf.id_) {
-            isSelected = true;
-          }
+          if (f.id_ == sf.id_) { isSelected = true; }
         });
-        if (isSelected == true) {
-          return;
-        }
+        if (isSelected == true) { return; }
         const { color } = f.get('properties');
         const correspLayerName = f.get('properties').layerName;
         const correspLayer = selfObject.#findFeatureLayer(correspLayerName)[0];
@@ -470,6 +457,7 @@ class ImageBase {
       }, { hitTolerance: 5 });
     });
   }
+
 
   #createChangeEvents() {
     this.map.getView().on('change', () => {
@@ -737,7 +725,6 @@ class ImageBase {
     f.get('properties').color = color;
     const { display } = layer;
     f.setStyle(visibilityBaseStyle(display, color));
-
   }
 
   /** Center, zoom into and highlight feature
@@ -771,7 +758,6 @@ class ImageBase {
     const { color } = f.get('properties');
     const { display } = layer;
     f.setStyle(visibilityStrongStyle(display, color, opacity));
-
   }
 
   /** Removes highlight for the feature with the given ID.
@@ -783,7 +769,6 @@ class ImageBase {
     const { color } = f.get('properties');
     const { display } = layer;
     f.setStyle(visibilityBaseStyle(display, color));
-
   }
 
   /**
@@ -887,8 +872,6 @@ class ImageBase {
     this.map.addLayer(annotationLayer);
 
     return annotationLayer;
-
-
   }
 
   /**
