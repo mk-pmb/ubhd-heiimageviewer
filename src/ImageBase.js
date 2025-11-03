@@ -336,10 +336,12 @@ class ImageBase {
     this.overviewMapControl = overviewMapControl;
     map.addControl(overviewMapControl);
     /* still handling overview map... */
-    const overvmap = this.container.getElementsByClassName('ol-custom-overviewmap')[0];
+    const overvmap = this.container.getElementsByClassName(
+      'ol-custom-overviewmap')[0];
     const overviewCanvas = overvmap.querySelector('.ol-overviewmap-map');
     const overviewButton = overvmap.querySelector('button');
-    const zoomslider =  this.container.getElementsByClassName('ol-zoomslider')[0];
+    const zoomslider =  this.container.getElementsByClassName(
+      'ol-zoomslider')[0];
 
     zoomslider.addEventListener('mouseover', (e) => {
       overviewPreserve();
