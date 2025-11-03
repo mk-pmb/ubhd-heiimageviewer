@@ -272,13 +272,13 @@ class ImageBase {
     map.setView(initialView);
 
     /* INTERACTIONS */
-    const selfObject = this;
+    const viewer = this;
     const variableWheel = new MouseWheelZoom({
       condition(e) {
         if (e.type != 'wheel') {
           return;
         }
-        if (selfObject.wheelMode == variables.MW_VERTICAL) {
+        if (viewer.wheelMode == variables.MW_VERTICAL) {
           e.originalEvent.preventDefault();
           const view = map.getView();
           const center = view.getCenter();
@@ -293,7 +293,7 @@ class ImageBase {
           return false;
         }
         const coord = map.getCoordinateFromPixel(e.pixel);
-        return !!containsCoordinate(selfObject.extent, coord);
+        return !!containsCoordinate(viewer.extent, coord);
       },
     });
     const interactions = map.getInteractions();
@@ -423,7 +423,7 @@ class ImageBase {
 
   pointerMoveRefresh() {
     const { selectedFeature } = this;
-    const selfObject = this;
+    const viewer = this;
     this.map.on('pointermove', (e) => {
       for (let i = 0; i < this.hoveredFeatures.length; i++) {
         const hoveredFeature = this.hoveredFeatures[i];
@@ -435,7 +435,7 @@ class ImageBase {
           if (isSelected == true) { continue; }
           const { color } = hoveredFeature.get('properties');
           const correspLayerName = hoveredFeature.get('properties').layerName;
-          const correspLayer = selfObject.#findFeatureLayer(correspLayerName)[0];
+          const correspLayer = viewer.#findFeatureLayer(correspLayerName)[0];
           const { display } = correspLayer;
           hoveredFeature.setStyle(visibilityBaseStyle(display, color));
         }
@@ -450,10 +450,10 @@ class ImageBase {
         if (isSelected == true) { return; }
         const { color } = f.get('properties');
         const correspLayerName = f.get('properties').layerName;
-        const correspLayer = selfObject.#findFeatureLayer(correspLayerName)[0];
+        const correspLayer = viewer.#findFeatureLayer(correspLayerName)[0];
         const { display } = correspLayer;
         f.setStyle(visibilityStrongStyle(display, color));
-        selfObject.hoveredFeatures.push(f);
+        viewer.hoveredFeatures.push(f);
       }, { hitTolerance: 5 });
     });
   }
@@ -466,11 +466,11 @@ class ImageBase {
     this.map.getView().on('change:rotation', () => {
       this.triggerEvent('change:view');
     });
-    const selfO = this;
+    const viewer = this;
     this.map.getControls().forEach((c) => {
       if (c instanceof WheelControl || c instanceof OverviewMap) {
         c.element.addEventListener('click', () => {
-          selfO.triggerEvent('change:view');
+          viewer.triggerEvent('change:view');
         });
       }
     });
