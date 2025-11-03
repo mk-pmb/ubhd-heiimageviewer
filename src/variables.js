@@ -13,21 +13,28 @@ const variables = {
   'FEATURE_TYPE_ANNO': 'annotation',
   /** Annotation type used for a custom annotation. Has zIndex 105. */
   'FEATURE_TYPE_CUSTOM': 'custom',
-  /** Annotation type used for a line of text on a written zone. Especially for text-image alignment purposes. Has zIndex 102. */
+  /** Annotation type used for a line of text on a written zone.
+   * Especially for text-image alignment purposes. Has zIndex 102. */
   'FEATURE_TYPE_LINE': 'line',
-  /** Annotation type used for a search snippet. Especially for text-image alignment purposes. Has zIndex 103. */
+  /** Annotation type used for a search snippet.
+   * Especially for text-image alignment purposes. Has zIndex 103. */
   'FEATURE_TYPE_SEARCH': 'search',
-  /** Annotation type used for a zone on a surface. Usually to include lines. Especially for text-image alignment purposes. Has zIndex 101. */
+  /** Annotation type used for a zone on a surface. Usually to include lines.
+   * Especially for text-image alignment purposes. Has zIndex 101. */
   'FEATURE_TYPE_ZONE': 'zone',
-  /** The default position of the image on the screen, which is 'center', i.e. the center of the image is in the center of the canvas. */
+  /** The default position of the image on the screen, which is 'center',
+   * i.e. the center of the image is in the center of the canvas. */
   'POSITION_DEFAULT': 'center',
   /** Value of position of the image at the top of the canvas and centered. */
   'POSITION_TOP': 'top',
-  /* Value of position of the image at the top of the canvas and the left side of the image on the left margin of the canvas. */
+  /* Value of position of the image at the top of the canvas and the left
+   * side of the image on the left margin of the canvas. */
   'POSITION_TOP_LEFT': 'top-left',
-  /** The property of the {@link module:heiImageViewer#imageViewer} object that stores the value of the scroll, zoom or vertical. */
+  /** The property of the {@link module:heiImageViewer#imageViewer} object
+   * that stores the value of the scroll, zoom or vertical. */
   'PROPERTY_WHEEL': 'wheelMode',
-  /** The property of the {@link module:heiImageViewer#imageViewer} object that stores the value of the visibility of the zones. */
+  /** The property of the {@link module:heiImageViewer#imageViewer} object
+   * that stores the value of the visibility of the zones. */
   'PROPERTY_ZONES': 'showZones',
   /** The value property of PROPERTY_WHEEL when it moves vertically. */
   'MW_VERTICAL': 'vertical',
