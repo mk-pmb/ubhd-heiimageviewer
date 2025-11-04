@@ -42,7 +42,7 @@ const EX = {
     const zoomslider = getElemByCls(viewer, 'ol-zoomslider');
 
     let overviewMapTimer;
-    let prevPos;
+    overviewMapControl.prevPos = false;
     let zoomslideTimer;
 
     function overviewPreserve() {
@@ -58,7 +58,7 @@ const EX = {
     }
 
     viewer.map.on('movestart', () => {
-      prevPos = viewer.map.getView().getCenter();
+      overviewMapControl.prevPos = viewer.map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }
       overviewPreserve();
     });
@@ -67,7 +67,7 @@ const EX = {
       const view = viewer.map.getView();
       const mapviewport = view.calculateExtent(viewer.map.getSize());
       if (!intersects(mapviewport, viewer.extent)) {
-        view.setCenter(prevPos);
+        view.setCenter(overviewMapControl.prevPos);
       }
       /* Overview map reset timer */
       if (overviewMapControl.getCollapsed()) { return; }
