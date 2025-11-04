@@ -1,14 +1,13 @@
 // src/ImageViewer.js
 import { Collection, View } from 'ol';
 import OlMap from 'ol/Map.js';
-import { OverviewMap } from 'ol/control.js';
 import { defaults as defaultInteractions } from 'ol/interaction.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import ImageLayer from 'ol/layer/Image.js';
 import Static from 'ol/source/ImageStatic.js';
 import { Projection } from 'ol/proj.js';
-import { getCenter, intersects } from 'ol/extent.js';
+import { getCenter } from 'ol/extent.js';
 import { IIIFInfo } from 'ol/format.js';
 import { IIIF } from 'ol/source.js';
 import TileLayer from 'ol/layer/Tile.js';
@@ -16,12 +15,11 @@ import TileLayer from 'ol/layer/Tile.js';
 import './hei-image-viewer.css';
 
 import { makeDefaultControls } from './controls.js';
-import { fade } from './fade.js';
 
 import todoRefactorInstanceof from './todo.refactorInstanceof.js';
 
-import i18n from './transl.js';
 import makeMapWheelHandler from './mapWheelHandler.js';
+import overviewMap from './overviewMap.js';
 import parseShapes from './parseShapes.js';
 import variables from './variables.js';
 import layerStyles from './layerStyles.js';
@@ -291,92 +289,7 @@ class ImageBase {
     viewer.updateControls(viewer.lang);
 
     /* OVERVIEW MAP CONTROL */
-
-    const overviewResolution = Math.max(
-      Math.abs(viewer.extent[1]),
-      Math.abs(viewer.extent[2]),
-    ) / viewer.overviewMapSize;
-    const overviewMapControl = new OverviewMap({
-      className: 'ol-overviewmap ol-custom-overviewmap',
-      layers: [viewer.overviewLayer],
-      label: i18n.buttonIconAndLabel('overviewMapHidden', 'span'),
-      collapseLabel: i18n.buttonIconAndLabel('overviewMapVisible', 'span'),
-      tipLabel: i18n('overviewMapVisible'),
-      collapsed: viewer.overviewMapCollapsed,
-      view: new View({
-        projection: viewer.projection,
-        resolutions: [overviewResolution],
-        extent: viewer.extent,
-        constrainResolution: true,
-      }),
-    });
-
-    // We first need to add the control in order to then access its DOM:
-    viewer.map.addControl(overviewMapControl);
-    const overvmap = viewer.container.getElementsByClassName(
-      'ol-custom-overviewmap')[0];
-    const overviewCanvas = overvmap.querySelector('.ol-overviewmap-map');
-    const zoomslider =  viewer.container.getElementsByClassName(
-      'ol-zoomslider')[0];
-
-    let overviewMapTimer;
-    let prevPos;
-    let zoomslideTimer;
-
-    function overviewPreserve() {
-      clearTimeout(overviewMapTimer);
-      clearTimeout(zoomslideTimer);
-      overviewCanvas.style.visibility = 'visible';
-      overviewCanvas.style.opacity = 1;
-      overviewCanvas.parentElement.style.borderBottom = '1px solid black';
-      overviewCanvas.parentElement.style.borderRight = '1px solid black';
-      zoomslider.style.opacity = 1;
-      zoomslider.style.display = 'block';
-      zoomslider.style.visibility = 'visible';
-    }
-
-    viewer.map.on('movestart', () => {
-      prevPos = viewer.map.getView().getCenter();
-      if (overviewMapControl.getCollapsed()) { return; }
-      overviewPreserve();
-    });
-
-    viewer.map.on('moveend', () => {
-      const view = viewer.map.getView();
-      const mapviewport = view.calculateExtent(viewer.map.getSize());
-      if (!intersects(mapviewport, viewer.extent)) {
-        view.setCenter(prevPos);
-      }
-      /* Overview map reset timer */
-      if (overviewMapControl.getCollapsed()) { return; }
-      overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
-      zoomslideTimer = setTimeout(fade, 2500, zoomslider);
-    });
-
-    const overviewButton = overvmap.querySelector('button');
-    overviewButton.onclick = function overviewButtonClicked() {
-      const isCurrentlyCollapsed = overviewMapControl.getCollapsed();
-      if (isCurrentlyCollapsed) {
-        overviewCanvas.style.visibility = 'hidden';
-        zoomslider.style.visibility = 'hidden';
-      } else {
-        overviewPreserve();
-      }
-    };
-
-    zoomslider.addEventListener('mouseover', () => {
-      overviewPreserve();
-    });
-    zoomslider.addEventListener('mouseleave', () => {
-      overviewPreserve();
-      overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
-      zoomslideTimer = setTimeout(fade, 2500, zoomslider);
-    });
-
-    overviewMapControl.getOverviewMap().on('pointerdrag', overviewPreserve);
-    overviewMapControl.getOverviewMap().on('click', overviewPreserve);
-
-    viewer.overviewMapControl = overviewMapControl;
+    overviewMap.installIntoViewer(viewer);
 
     viewer.hoveredFeatures = [];
     viewer.selectedFeature = new Collection();
