@@ -3,7 +3,10 @@ const EX = function fade(element) {
   const elSt = element.style;
   const parSt = element.parentElement.style;
 
+  let aborted = false;
+
   function animationStep() {
+    if (aborted) { return; }
     if (op <= 0.1) {
       parSt.border = 'none';
       elSt.visibility = 'hidden';
@@ -20,6 +23,8 @@ const EX = function fade(element) {
 
   animationStep();
   // ^-- Not using IIFE because we'll have a "initialDelay" option later.
+
+  return { abort() { aborted = true; } };
 };
 
 
