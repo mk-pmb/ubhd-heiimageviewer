@@ -2,9 +2,9 @@ const EX = function fade(element) {
   let op = 1;  // initial opacity
   const elSt = element.style;
   const parSt = element.parentElement.style;
-  const timer = setInterval(function () {
+
+  function animationStep() {
     if (op <= 0.1) {
-      clearInterval(timer);
       parSt.border = 'none';
       elSt.visibility = 'hidden';
       elSt.opacity = '0';
@@ -15,7 +15,11 @@ const EX = function fade(element) {
     parSt.borderBottom = border;
     parSt.borderRight = border;
     op -= op * 0.12;
-  }, 50);
+    setTimeout(animationStep, 50);
+  }
+
+  animationStep();
+  // ^-- Not using IIFE because we'll have a "initialDelay" option later.
 };
 
 
