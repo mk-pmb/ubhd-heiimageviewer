@@ -319,18 +319,10 @@ class ImageBase {
     const zoomslider =  viewer.container.getElementsByClassName(
       'ol-zoomslider')[0];
 
-    zoomslider.addEventListener('mouseover', (e) => {
-      overviewPreserve();
-    });
-    zoomslider.addEventListener('mouseleave', (e) => {
-      overviewPreserve();
-      overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
-      zoomslideTimer = setTimeout(fade, 2500, zoomslider);
-    });
-
     let overviewMapTimer;
-    let zoomslideTimer;
     let prevPos;
+    let zoomslideTimer;
+
     viewer.map.on('movestart', () => {
       prevPos = viewer.map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }
@@ -359,6 +351,15 @@ class ImageBase {
         overviewPreserve();
       }
     };
+
+    zoomslider.addEventListener('mouseover', (e) => {
+      overviewPreserve();
+    });
+    zoomslider.addEventListener('mouseleave', (e) => {
+      overviewPreserve();
+      overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
+      zoomslideTimer = setTimeout(fade, 2500, zoomslider);
+    });
 
     overviewMapControl.getOverviewMap().on('pointerdrag', overviewPreserve);
     overviewMapControl.getOverviewMap().on('click', overviewPreserve);
