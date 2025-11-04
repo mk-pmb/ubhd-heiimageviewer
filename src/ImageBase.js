@@ -310,13 +310,12 @@ class ImageBase {
         constrainResolution: true,
       }),
     });
-    viewer.overviewMapControl = overviewMapControl;
+
+    // We first need to add the control in order to then access its DOM:
     viewer.map.addControl(overviewMapControl);
-    /* still handling overview map... */
     const overvmap = viewer.container.getElementsByClassName(
       'ol-custom-overviewmap')[0];
     const overviewCanvas = overvmap.querySelector('.ol-overviewmap-map');
-    const overviewButton = overvmap.querySelector('button');
     const zoomslider =  viewer.container.getElementsByClassName(
       'ol-zoomslider')[0];
 
@@ -349,6 +348,8 @@ class ImageBase {
       overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
     });
+
+    const overviewButton = overvmap.querySelector('button');
     overviewButton.onclick = function () {
       const isCurrentlyCollapsed = overviewMapControl.getCollapsed();
       if (isCurrentlyCollapsed) {
@@ -372,6 +373,8 @@ class ImageBase {
       zoomslider.style.display = 'block';
       zoomslider.style.visibility = 'visible';
     }
+
+    viewer.overviewMapControl = overviewMapControl;
 
     viewer.hoveredFeatures = [];
     viewer.selectedFeature = new Collection();
