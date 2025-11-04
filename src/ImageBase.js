@@ -341,7 +341,7 @@ class ImageBase {
       overviewPreserve();
     });
 
-    viewer.map.on('moveend', (m) => {
+    viewer.map.on('moveend', () => {
       const view = viewer.map.getView();
       const mapviewport = view.calculateExtent(viewer.map.getSize());
       if (!intersects(mapviewport, viewer.extent)) {
@@ -354,7 +354,7 @@ class ImageBase {
     });
 
     const overviewButton = overvmap.querySelector('button');
-    overviewButton.onclick = function () {
+    overviewButton.onclick = function overviewButtonClicked() {
       const isCurrentlyCollapsed = overviewMapControl.getCollapsed();
       if (isCurrentlyCollapsed) {
         overviewCanvas.style.visibility = 'hidden';
@@ -364,10 +364,10 @@ class ImageBase {
       }
     };
 
-    zoomslider.addEventListener('mouseover', (e) => {
+    zoomslider.addEventListener('mouseover', () => {
       overviewPreserve();
     });
-    zoomslider.addEventListener('mouseleave', (e) => {
+    zoomslider.addEventListener('mouseleave', () => {
       overviewPreserve();
       overviewMapTimer = setTimeout(fade, 2500, overviewCanvas);
       zoomslideTimer = setTimeout(fade, 2500, zoomslider);
