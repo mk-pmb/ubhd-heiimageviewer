@@ -323,6 +323,18 @@ class ImageBase {
     let prevPos;
     let zoomslideTimer;
 
+    function overviewPreserve() {
+      clearTimeout(overviewMapTimer);
+      clearTimeout(zoomslideTimer);
+      overviewCanvas.style.visibility = 'visible';
+      overviewCanvas.style.opacity = 1;
+      overviewCanvas.parentElement.style.borderBottom = '1px solid black';
+      overviewCanvas.parentElement.style.borderRight = '1px solid black';
+      zoomslider.style.opacity = 1;
+      zoomslider.style.display = 'block';
+      zoomslider.style.visibility = 'visible';
+    }
+
     viewer.map.on('movestart', () => {
       prevPos = viewer.map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }
@@ -363,17 +375,6 @@ class ImageBase {
 
     overviewMapControl.getOverviewMap().on('pointerdrag', overviewPreserve);
     overviewMapControl.getOverviewMap().on('click', overviewPreserve);
-    function overviewPreserve() {
-      clearTimeout(overviewMapTimer);
-      clearTimeout(zoomslideTimer);
-      overviewCanvas.style.visibility = 'visible';
-      overviewCanvas.style.opacity = 1;
-      overviewCanvas.parentElement.style.borderBottom = '1px solid black';
-      overviewCanvas.parentElement.style.borderRight = '1px solid black';
-      zoomslider.style.opacity = 1;
-      zoomslider.style.display = 'block';
-      zoomslider.style.visibility = 'visible';
-    }
 
     viewer.overviewMapControl = overviewMapControl;
 
