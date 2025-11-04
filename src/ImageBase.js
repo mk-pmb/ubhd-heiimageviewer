@@ -311,7 +311,7 @@ class ImageBase {
       }),
     });
     viewer.overviewMapControl = overviewMapControl;
-    map.addControl(overviewMapControl);
+    viewer.map.addControl(overviewMapControl);
     /* still handling overview map... */
     const overvmap = viewer.container.getElementsByClassName(
       'ol-custom-overviewmap')[0];
@@ -332,15 +332,15 @@ class ImageBase {
     let overviewMapTimer;
     let zoomslideTimer;
     let prevPos;
-    map.on('movestart', () => {
-      prevPos = map.getView().getCenter();
+    viewer.map.on('movestart', () => {
+      prevPos = viewer.map.getView().getCenter();
       if (overviewMapControl.getCollapsed()) { return; }
       overviewPreserve();
     });
 
-    map.on('moveend', (m) => {
-      const view = map.getView();
-      const mapviewport = view.calculateExtent(map.getSize());
+    viewer.map.on('moveend', (m) => {
+      const view = viewer.map.getView();
+      const mapviewport = view.calculateExtent(viewer.map.getSize());
       if (!intersects(mapviewport, viewer.extent)) {
         view.setCenter(prevPos);
       }
