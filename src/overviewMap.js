@@ -2,7 +2,7 @@ import { intersects } from 'ol/extent.js';
 import { OverviewMap } from 'ol/control.js';
 import { View } from 'ol';
 
-import { fade } from './fade.js';
+import fade from './fade.js';
 import i18n from './transl.js';
 
 

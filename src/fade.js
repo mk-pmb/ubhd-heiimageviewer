@@ -1,7 +1,6 @@
-// fade.js
-export function fade(element) {
+const EX = function fade(element) {
   let op = 1;  // initial opacity
-  var timer = setInterval(function () {
+  const timer = setInterval(function () {
     if (op <= 0.1) {
       clearInterval(timer);
       element.parentElement.style.border = 'none';
@@ -14,4 +13,7 @@ export function fade(element) {
     element.parentElement.style.borderRight = '1px solid rgba(0,0,0, ' + op + ' )';
     op -= op * 0.12;
   }, 50);
-}
+};
+
+
+export default EX;
