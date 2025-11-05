@@ -432,7 +432,7 @@ class ImageBase {
     const canvasWidth = size[0];
     const canvasHeight = size[1];
     const { projection } = viewer;
-    const extent = projection.extent_;
+    const extent = projection.getExtent();
     const imageWidth = extent[2];
     const imageHeight = Math.abs(extent[1]);
     const w = imageWidth / canvasWidth;

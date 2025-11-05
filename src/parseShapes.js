@@ -12,7 +12,7 @@ export default (annotations, projection) => {
   const featuresOrig = annotations.features;
   const layerType = annotations.type;
   const layerName = annotations.name;
-  const imgWidth = projection.extent_[2];
+  const imgWidth = projection.getExtent()[2];
   const { color } = annotations;
   /* Neccesary to move feature coordinates from bottom to top */
   const invertedProjection = new Projection({});
