@@ -4,16 +4,17 @@ import './hei-image-viewer.css';
 
 import './compat-shims.js';
 
-import { ImageDraw } from './ImageDraw.js';
-import { ImageViewer } from './ImageViewer.js';
-import { Layer } from './Layer.js';
+import createLayer from './Layer.js';
+import createShapeEditor from './ImageDraw.js';
+import createViewer from './ImageViewer.js';
 import i18n from './transl.js';
 import variables from './variables.js';
 
+
 export {
+  createLayer,
+  createShapeEditor,
+  createViewer,
   i18n,
-  ImageDraw,
-  ImageViewer,
-  Layer,
   variables,
 };

@@ -67,6 +67,18 @@ class Layer {
 
 
 
-Layer.debug = Object.bind(null, debug);
+const EX = function createLayer(how) {
+  // The purpose of exporting a factory instead of a constructor is
+  // to grant us more freedom of implementation in future versions.
+  const layer = new Layer(how);
+  return layer;
+};
 
-export { Layer };
+
+EX.debug = Object.bind(null, debug);
+EX.internals = Object.bind(null, {
+  Layer,
+});
+
+
+export default EX;

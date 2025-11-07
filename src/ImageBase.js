@@ -814,4 +814,7 @@ class ImageBase {
 }
 
 
-export { ImageBase };
+
+// If you need to monkey-patch ImageBase, you can access it via
+// `heiImageViewer.createViewer.internals().ImageBase`.
+export default ImageBase;

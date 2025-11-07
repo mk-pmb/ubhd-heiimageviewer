@@ -4,10 +4,10 @@ import { Fill, Stroke, Style } from 'ol/style.js';
 import { Collection } from 'ol';
 import { shiftKeyOnly } from 'ol/events/condition.js';
 import Transform from 'ol-ext/interaction/Transform.js';
-import { ImageBase } from './ImageBase.js';
+import ImageBase from './ImageBase.js';
 import variables from './variables.js';
 import shapeDefs from './shapeDefs.js';
-import { Layer } from './Layer.js';
+import Layer from './Layer.js';
 import { DrawBase, RemoveFeature, SelectMode, ShapeTransform } from './controls.js';
 
 
@@ -387,4 +387,18 @@ class ImageDraw extends ImageBase {
   }
 }
 
-export { ImageDraw };
+
+const EX = function createShapeEditor(how) {
+  // The purpose of exporting a factory instead of a constructor is
+  // to grant us more freedom of implementation in future versions.
+  const draw = new ImageDraw(how);
+  return draw;
+};
+
+
+EX.internals = Object.bind(null, {
+  ImageDraw,
+});
+
+
+export default EX;
