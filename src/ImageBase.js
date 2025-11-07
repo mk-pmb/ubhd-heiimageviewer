@@ -591,6 +591,8 @@ class ImageBase {
    * @param {Object} layer - The layer to add the feature to.
    */
   addFeature(feature, layer) {
+    /* Reminder: If we ever introduce a featureAdded event, we need to also
+      consider the initial feaures given as option to the Layer constructor. */
     layer.features.push(feature);
     this.deleteLayer(layer.name);
     this.addLayer(layer);

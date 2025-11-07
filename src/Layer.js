@@ -4,6 +4,12 @@ import variables from './variables.js';
 const { visibilityBaseStyle } = layerStyles;
 
 
+const debug = {
+  layersByName: new Map(),
+  mapLayer: false,
+};
+
+
 class Layer {
   constructor(options) {
     this.name = options.name;
@@ -13,10 +19,12 @@ class Layer {
     this.display = options.display || 'default';
     this.baseOpacity = options.baseOpacity || 0;
     this.hoverOpacity = options.hoverOpacity || 0.1;
+    debug.layersByName.set(this.name, this);
   }
 
   setMapLayer(l) {
     this.mapLayer = l;
+    debug.mapLayer = l;
   }
 
   getMapLayer() {
@@ -57,5 +65,8 @@ class Layer {
   }
 }
 
+
+
+Layer.debug = Object.bind(null, debug);
 
 export { Layer };
