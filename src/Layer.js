@@ -8,11 +8,11 @@ class Layer {
   constructor(options) {
     this.name = options.name;
     this.type = options.type;
-    this.color = options.color ? options.color : variables.COLOR_DEFAULT;
-    this.features = options.features ? options.features : [];
-    this.display = options.display ? options.display : 'default';
-    this.baseOpacity = options.baseOpacity ? options.baseOpacity : 0;
-    this.hoverOpacity = options.hoverOpacity ? options.hoverOpacity : 0.1;
+    this.color = options.color || variables.COLOR_DEFAULT;
+    this.features = options.features || [];
+    this.display = options.display || 'default';
+    this.baseOpacity = options.baseOpacity || 0;
+    this.hoverOpacity = options.hoverOpacity || 0.1;
   }
 
   setMapLayer(l) {
