@@ -21,8 +21,9 @@
   "main": "src/index.js",
   "directories": { "test": "test" },
   "scripts": {
-    "build": "./build/build.sh",
-    "lint": "elp",
+    "build": "./build/build.sh \"$@\"",
+    "fixlint": "elp --fix \"$@\"",
+    "lint": "elp \"$@\"",
     "test": "echo 'No tests yet!' >&2; exit 2"
   },
   "eslintConfig": { "extends": "nodejs-pmb",
