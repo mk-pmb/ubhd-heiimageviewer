@@ -462,10 +462,8 @@ export class ShapeTransform extends Control {
     const options = optionalOptions || {};
     const buttonTransform = i18n.buttonIconAndLabel('moveScaleRotate');
     buttonTransform.classList.add('heiv-shapedit-transform');
-    self.buttonTransform = buttonTransform;
     const buttonModify = i18n.buttonIconAndLabel('editVertices');
     buttonModify.classList.add('heiv-shapedit-modify');
-    self.buttonModify = buttonModify;
     const element = document.createElement('div');
     element.className = 'heiv-draw-ind ol-control heiv-shapedit-transform';
     element.appendChild(buttonTransform);
@@ -475,15 +473,19 @@ export class ShapeTransform extends Control {
       element,
       target: options.target,
     });
-    this.active = false;
+    const self = this;
+    self.active = false;
+    self.buttonModify = buttonModify;
+    self.buttonTransform = buttonTransform;
 
-    bindEventHandler(buttonTransform, this, 'activate', 'transform');
-    bindEventHandler(buttonModify, this, 'activate', 'modify');
+    bindEventHandler(buttonTransform, self, 'activate', 'transform');
+    bindEventHandler(buttonModify, self, 'activate', 'modify');
   }
 
   activate(type) {
-    this.element.classList.remove('hide');
-    const map = this.getMap();
+    const self = this;
+    self.element.classList.remove('hide');
+    const map = self.getMap();
     const heiv = map.get('heiv');
     if (type === 'transform') {
       map.removeInteraction(heiv.selectShape);
