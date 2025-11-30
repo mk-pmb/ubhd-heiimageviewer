@@ -239,7 +239,12 @@ export class DrawBase extends Control {
     if (!shape) { throw new Error('No shape defined for draw button'); }
 
     const element = document.createElement('div');
-    element.className = 'heiv-draw-ind heiv-draw-inactive ol-control heiv-draw-ind-' + shape.toLowerCase();
+    element.className = [
+      'heiv-draw-ind',
+      'heiv-draw-inactive',
+      'ol-control',
+      'heiv-draw-ind-' + shape.toLowerCase(),
+    ].join(' ');
 
     const shapeName = (shapeDefs[shape] || false).shortName;
     if (!shapeName) { throw new Error('Invalid shape for draw button'); }
@@ -261,8 +266,7 @@ export class DrawBase extends Control {
     this.drawFeatNum = 1;
 
     const drawBaseControl = this;
-    button.onclick = function toggleDrawControl(evt) {
-      const btn = evt.currentTarget;
+    button.onclick = function toggleDrawControl() {
       const map = drawBaseControl.getMap();
       const draw = map.get('draw');
       if (draw) { map.removeInteraction(draw); }
@@ -354,6 +358,7 @@ export class SelectMode extends Control {
     const unsupp = Object.keys(optionalOptions || false).join(', ');
     if (unsupp) { throw new Error('Unsupported options: ' + unsupp); }
 
+    const options = optionalOptions || {};
     const button = i18n.buttonIconAndLabel('selectShape');
     const element = document.createElement('div');
     element.className = 'heiv-select ol-control';
@@ -430,7 +435,7 @@ export class RemoveFeature extends Control {
     });
 
 
-    button.addEventListener('click', (e) => {
+    button.addEventListener('click', () => {
       const map = this.getMap();
       const heiv = map.get('heiv');
       heiv.deleteSelectedFeatures();
@@ -480,7 +485,7 @@ export class ShapeTransform extends Control {
     this.element.classList.remove('hide');
     const map = this.getMap();
     const heiv = map.get('heiv');
-    if (type == 'transform') {
+    if (type === 'transform') {
       map.removeInteraction(heiv.selectShape);
       map.removeInteraction(heiv.modifyShape);
       map.removeInteraction(heiv.translateShape);
@@ -490,7 +495,7 @@ export class ShapeTransform extends Control {
       self.buttonModify.classList.remove('active');
       heiv.modifyType = 'transform';
 
-    } else if (type == 'modify') {
+    } else if (type === 'modify') {
       heiv.selectedFeature.extend(heiv.transformShape.getFeatures().getArray());
       map.removeInteraction(heiv.transformShape);
       map.addInteraction(heiv.modifyShape);
