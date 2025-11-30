@@ -155,8 +155,9 @@ export class WheelControl extends Control {
         ? variables.MW_VERTICAL : variables.MW_ZOOM);
       viewer.toggleWheel(nextWheelMode);
       setWheelModeButtonIcon(openMenuLabel, nextWheelMode);
+      return false;
     }
-    button.addEventListener('click', toggleWheelMode, false);
+    button.onclick = toggleWheelMode;
   }
 }
 
@@ -259,22 +260,23 @@ export class DrawBase extends Control {
     this.active = false;
     this.drawFeatNum = 1;
 
-    button.addEventListener('click', (e) => {
-      const btn = e.currentTarget;
-      const map = this.getMap();
+    const drawBaseControl = this;
+    button.onclick = function toggleDrawControl(evt) {
+      const btn = evt.currentTarget;
+      const map = drawBaseControl.getMap();
       const draw = map.get('draw');
-      if (draw) {
-        map.removeInteraction(draw);
-      }
-      this.active ? this.deactivate() : this.activate(shape);
-      if (!this.active) {
+      if (draw) { map.removeInteraction(draw); }
+      if (drawBaseControl.active) {
+        drawBaseControl.deactivate();
+      } else {
+        drawBaseControl.activate(shape);
         map.set('draw', null);
         const selectControls = map.get('selectControls');
         for (const selectCtrl of selectControls) {
           selectCtrl.activate();
         }
       }
-    });
+    };
   }
 
   activate(shape) {
