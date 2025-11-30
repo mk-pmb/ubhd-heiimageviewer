@@ -48,19 +48,22 @@ class Layer {
   }
 
   setColor(color) {
-    this.color = color;
-    const { mapLayer } = this;
-    mapLayer.getSource().forEachFeature((f) => {
-      f.setStyle(visibilityBaseStyle(this.display, color));
-      f.get('properties').color = color;
+    const layer = this;
+    layer.color = color;
+    const { mapLayer } = layer;
+    mapLayer.getSource().forEachFeature(function updateFeatureColor(feat) {
+      feat.setStyle(visibilityBaseStyle(layer.display, color));
+      // eslint-disable-next-line no-param-reassign
+      feat.get('properties').color = color;
     });
   }
 
   setDisplay(dis) {
-    this.display = dis;
-    const source = this.mapLayer.getSource();
-    source.forEachFeature((f) => {
-      f.setStyle(visibilityBaseStyle(dis, f.get('properties').color));
+    const layer = this;
+    layer.display = dis;
+    const source = layer.mapLayer.getSource();
+    source.forEachFeature(function updateFeatureVisibility(feat) {
+      feat.setStyle(visibilityBaseStyle(dis, feat.get('properties').color));
     });
   }
 }
