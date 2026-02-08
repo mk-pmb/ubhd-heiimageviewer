@@ -16,6 +16,12 @@ import layerStyles from './layerStyles.js';
 const { visibilityBaseStyle } = layerStyles;
 
 
+const xmlNumAttrQuote = "'"; /*
+  For compatibility with old heIV.
+  :TODO: Check SVG compliance and maybe explain here.
+  */
+
+
 /** @class
  *@classdesc Class for viewer that allows to draw shape.
  * */
@@ -304,34 +310,47 @@ class ImageDraw extends ImageBase {
     return processed;
   };
 
+
+  fmtCoordinatesAsSvg(origPointsList) {
+    const prec = this.maxCoordinateDecimals;
+    const commaPairs = origPointsList.map(function fmtPoint([origX, origY]) {
+      const x = origX.toFixed(prec);
+      const y = (-origY).toFixed(prec);
+      return x + ',' + y;
+    });
+    return commaPairs.join(' ');
+  }
+
   createSvgPolygon(coordinates) {
-    const points = coordinates[0]
-      .map(coord => coord.map((item, index) => (index === 1 ? (item * -1).toFixed(this.maxCoordinateDecimals) : item.toFixed(this.maxCoordinateDecimals))).join(','))
-      .join(' ');
+    const points = this.fmtCoordinatesAsSvg(coordinates[0]);
     const svgPolygon = `<polygon points='${points}'/>`;
     return svgPolygon;
   }
 
   createSvgPolyline(coordinates) {
-    const points = coordinates
-      .map(coord => coord.map((item, index) => (index === 1 ? (item * -1).toFixed(this.maxCoordinateDecimals) : item.toFixed(this.maxCoordinateDecimals))).join(','))
-      .join(' ');
+    const points = this.fmtCoordinatesAsSvg(coordinates);
     const svgPolyline = `<polyline points='${points}'/>`;
     return svgPolyline;
   }
 
+
+  fmtSvgNumAttrs(attrib) {
+    const prec = this.maxCoordinateDecimals;
+    return Object.keys(attrib).sort().map(k => (k + '=' + xmlNumAttrQuote
+      + attrib[k].toFixed(prec) + xmlNumAttrQuote)).join(' ');
+  }
+
   createSvgLine(coordinates) {
-    let points = '';
-    let svgLine = '';
-    if (coordinates.length == 2) {
-      svgLine += `<line x1='${coordinates[0][0].toFixed(this.maxCoordinateDecimals)}' y1='${-coordinates[0][1].toFixed(this.maxCoordinateDecimals)}' x2='${coordinates[1][0].toFixed(this.maxCoordinateDecimals)}' y2='${-coordinates[1][1].toFixed(this.maxCoordinateDecimals)}'/>`;
-    } else {
-      points = coordinates
-        .map(coord => coord.map((item, index) => (index === 1 ? (item * -1).toFixed(this.maxCoordinateDecimals) : item.toFixed(this.maxCoordinateDecimals))).join(','))
-        .join(' ');
-      svgLine += `<polyline points='${points}'/>`;
+    if (coordinates.length > 2) {
+      return this.createSvgPolyline(coordinates);
     }
-    return svgLine;
+    const attr = {
+      x1: coordinates[0][0],
+      y1: -coordinates[0][1],
+      x2: coordinates[1][0],
+      y2: -coordinates[1][1],
+    };
+    return ('<line ' + this.fmtSvgNumAttrs(attr) + '>');
   }
 
 
@@ -351,22 +370,23 @@ class ImageDraw extends ImageBase {
     const height = yMax - yMin;
 
     // Create SVG <rect> element
-    const svgPolygon = `<rect x='${xMin.toFixed(this.maxCoordinateDecimals)}' y='${yMin.toFixed(this.maxCoordinateDecimals)}' width='${width.toFixed(this.maxCoordinateDecimals)}' height='${height.toFixed(this.maxCoordinateDecimals)}'/>`;
-
-    return svgPolygon;
+    const attr = { x: xMin, y: yMin, width, height };
+    return ('<rect ' + this.fmtSvgNumAttrs(attr) + '>');
   }
 
   createSvgCircle(center, radius) {
-    const svgPolygon = `<circle cx='${center[0].toFixed(this.maxCoordinateDecimals)}' cy='${(center[1] * -1).toFixed(this.maxCoordinateDecimals)}' r='${radius.toFixed(this.maxCoordinateDecimals)}'/>`;
-    return svgPolygon;
+    const attr = { cx: center[0], cy: -center[1], r: radius };
+    return ('<circle ' + this.fmtSvgNumAttrs(attr) + '>');
   }
 
 
   createSvgEllipse(ellipseCoords) {
-    let totalX = 0; let
-      totalY = 0;
-    let maxRx = 0; let
-      maxRy = 0;
+    /* :TODO: Explain: What is this algorithm meant to do?
+      Are we trying to find the average center point of multiple ellipses? */
+    let totalX = 0;
+    let totalY = 0;
+    let maxRx = 0;
+    let maxRy = 0;
     const numPoints = ellipseCoords[0].length;
     ellipseCoords[0].forEach((point) => {
       totalX += point[0];
@@ -382,8 +402,8 @@ class ImageDraw extends ImageBase {
     });
     const rx = maxRx;
     const ry = maxRy;
-    const svgEllipse = `<ellipse cx="${cx.toFixed(this.maxCoordinateDecimals)}" cy="${-cy.toFixed(this.maxCoordinateDecimals)}" rx="${rx.toFixed(this.maxCoordinateDecimals)}" ry="${ry.toFixed(this.maxCoordinateDecimals)}" />`;
-    return svgEllipse;
+    const attr = { cx, cy: -cy, rx, ry };
+    return ('<ellipse ' + this.fmtSvgNumAttrs(attr) + '>');
   }
 }
 
