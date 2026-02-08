@@ -192,7 +192,9 @@ class ImageBase {
     const imageWidth = bigImg[0][0];
     const imageHeight = bigImg[0][1];
 
-    const extent = (this.extent = [0, -imageHeight, imageWidth, 0]); // Format to get 0,0 at top left corner
+    const extent = ([0, -imageHeight, imageWidth, 0]); /*
+      Format to get 0,0 at top left corner */
+    this.extent = extent;
     const projection = (this.projection = new Projection({
       code: 'inverted',
       units: 'pixels',
@@ -524,7 +526,8 @@ class ImageBase {
     const view = map.getView();
     const mapSize = map.getSize();
     if (mapSize == '0,0') {
-      /* When the map was not visible, the size is 0,0 and we need to calculate it as if it was opened for the first time */
+      /* When the map was not visible, the size is 0,0 and we need to
+        calculate it as if it was opened for the first time */
       map.updateSize();
       const newView = this.createInitialView(this.resolution);
       map.setView(newView);
@@ -547,7 +550,8 @@ class ImageBase {
     this.#createChangeEvents();
   }
 
-  /** Regenerates all menus except the overview map. Usually to update the language.
+  /** Regenerates all menus except the overview map, usually to update the
+   * language.
    * */
   updateControls() {
     // Nothing to do in this base class.
@@ -587,7 +591,8 @@ class ImageBase {
   }
 
   /**
-   * @param {Object} feature - The feature object with keys 'name' and 'shapes', optionally 'color'.
+   * @param {Object} feature - The feature object with keys 'name' and
+   *   'shapes', optionally 'color'.
    * @param {Object} layer - The layer to add the feature to.
    */
   addFeature(feature, layer) {
@@ -611,7 +616,8 @@ class ImageBase {
 
   /** Changes color for feature
    * @param {string} id - The feature ID.
-   * @param {string} color - The color as a hex number or array with three numbers for rgb
+   * @param {string} color - The color as a hex number or array with
+   *   three numbers for rgb
    * */
   changeFeatureColor(id, color) {
     const [f, layer] = this.getFeatureAndLayer(id);
@@ -665,7 +671,8 @@ class ImageBase {
   }
 
   /**
-   * @param {string} name - The name of the layer to remove. If empty all annotation layers will be removed.
+   * @param {string} name - The name of the layer to remove.
+   *   If empty all annotation layers will be removed.
    * */
   deleteLayer(name) {
     const { map } = this;
@@ -705,7 +712,8 @@ class ImageBase {
   }
 
   /**
-   * @param {Object} layerObj - The layer object to add to the canvas. This has the keys 'name', 'type' and 'features'.
+   * @param {Object} layerObj - The layer object to add to the canvas.
+   *   This has the keys 'name', 'type' and 'features'.
    * */
   addLayer(layerObj, i = 0) {
     const layerType = layerObj.type;
@@ -777,14 +785,17 @@ class ImageBase {
     }
   }
 
-  /** Returns the corresponding [ol/Map (Open Layers Map)]{@link external:ol.Map} object to be able to use its´ methods.
+  /** Returns the corresponding
+   * [ol/Map (Open Layers Map)]{@link external:ol.Map} object
+   * to be able to use its´ methods.
    * @returns {ol.Map}
    * */
   getMap() {
     return this.map;
   }
 
-  /** Get the current custom properties that change the behaviour of the object, for example highlighing zones on zoom or the type of mouse scroll
+  /** Get the current custom properties that change the behaviour of the
+   * object, for example highlighing zones on zoom or the type of mouse scroll.
    * @returns {{wheelMode, resolution, rotation}}
    * @example
    * viewer.getProperties().wheelMode ;

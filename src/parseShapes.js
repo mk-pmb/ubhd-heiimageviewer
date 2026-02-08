@@ -102,7 +102,7 @@ function createSingleFeature(options) {
       color: options.color,
       layerName: options.layerName,
       type: options.featureType,
-      subfeatures: options.allTypesInThisFeature ? options.allTypesInThisFeature : '',
+      subfeatures: (options.allTypesInThisFeature || ''),
     },
   });
   feature.setId(options.featName);
@@ -176,13 +176,15 @@ function convertRect(rect, divisor) {
 }
 
 function convertPolygon(poly, divisor) {
-  const coordinates = getPointCoordsFromPrimitive(poly.getAttribute('points'), divisor);
+  const coordinates = getPointCoordsFromPrimitive(
+    poly.getAttribute('points'), divisor);
   const obj = new Polygon([coordinates]);
   return obj;
 }
 
 function convertLine(line, divisor) {
-  // The svg line-Element contains only two points (line start and end); if more points are used, see function convertPolyline().
+  /* The svg line-Element contains only two points (line start and end);
+    if more points are used, see function convertPolyline(). */
   const x1 = Number(line.getAttribute('x1')) / divisor;
   const y1 = Number(line.getAttribute('y1')) / divisor;
   const x2 = Number(line.getAttribute('x2')) / divisor;
@@ -196,8 +198,11 @@ function convertLine(line, divisor) {
 }
 
 function convertPolyline(polyline, divisor) {
-  // The svg polyline-Element contains two or more points which together form a single line. If separate lines are to be connected to a single shape, see ...XXX
-  const coordinates = getPointCoordsFromPrimitive(polyline.getAttribute('points'), divisor);
+  /* The svg polyline-Element contains two or more points which together form
+    a single line. If separate lines are to be connected to a single shape,
+    see ...XXX */
+  const coordinates = getPointCoordsFromPrimitive(
+    polyline.getAttribute('points'), divisor);
   const obj = new LineString(coordinates);
   return obj;
 }

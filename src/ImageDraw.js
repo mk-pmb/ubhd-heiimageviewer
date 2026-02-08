@@ -8,7 +8,8 @@ import ImageBase from './ImageBase.js';
 import variables from './variables.js';
 import shapeDefs from './shapeDefs.js';
 import Layer from './Layer.js';
-import { DrawBase, RemoveFeature, SelectMode, ShapeTransform } from './controls.js';
+import { DrawBase, RemoveFeature, SelectMode, ShapeTransform }
+  from './controls.js';
 
 
 import layerStyles from './layerStyles.js';
@@ -125,7 +126,8 @@ class ImageDraw extends ImageBase {
 
     /* Bind the trash icon and function to select */
     function handleSelectEvent(e) {
-      const selected = e.selected || e.features.array_; // Handle both event structures
+      const selected = e.selected || e.features.array_; /*
+        Handle both event structures */
       if (selected.length > 0) {
         this.removeFeatureControl.activate();
       } else {
@@ -193,7 +195,8 @@ class ImageDraw extends ImageBase {
   deselectAll() {
     this.selectedFeature.forEach((feat) => {
       if (feat.id_) {
-        feat.setStyle(visibilityBaseStyle(variables.ZONES_SHOW_ALL, feat.get('properties').color));
+        feat.setStyle(visibilityBaseStyle(variables.ZONES_SHOW_ALL,
+          feat.get('properties').color));
       }
     });
     this.selectedFeature.clear();
@@ -211,7 +214,8 @@ class ImageDraw extends ImageBase {
     if (this.selectedFeature.getLength() < 1) {
       return;
     }
-    const deleteConfirm = confirm('Are you sure you want to delete this feature?');
+    const deleteConfirm = window.confirm(
+      'Are you sure you want to delete this feature?');
     if (!deleteConfirm) {
       return;
     }
@@ -251,10 +255,9 @@ class ImageDraw extends ImageBase {
         layerSvg += self.processFeature(geom, geoType, subFeatures);
       });
 
-      if (layerSvg != '') {
-        layerSvg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' + this.extent[2] + '">'
-                    + layerSvg
-                    + '</svg>';
+      if (layerSvg) {
+        layerSvg = ('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
+          + 'width="' + this.extent[2] + '">' + layerSvg + '</svg>');
       }
       return layerSvg;
     }

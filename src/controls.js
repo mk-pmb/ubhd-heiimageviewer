@@ -426,7 +426,12 @@ export class RemoveFeature extends Control {
     const options = optionalOptions || {};
     const button = i18n.buttonIconAndLabel('deleteShape');
     const element = document.createElement('div');
-    element.className = 'heiv-draw-ind heiv-trash heiv-trash-inactive ol-control';
+    element.className = [
+      'heiv-draw-ind',
+      'heiv-trash',
+      'heiv-trash-inactive',
+      'ol-control',
+    ].join(' ');
     element.appendChild(button);
 
     super({

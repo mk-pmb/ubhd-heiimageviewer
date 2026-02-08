@@ -209,7 +209,11 @@
   padding-top: 5px;
   padding-bottom: 5px;
   white-space: nowrap;
-  transition: 0.5s height cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s padding cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s margin cubic-bezier(0.73, 0.32, 0.34, 1.5), 0.5s 0.2s color, 0.2s background-color;
+  transition:
+    0.5s height cubic-bezier(0.73, 0.32, 0.34, 1.5),
+    0.5s padding cubic-bezier(0.73, 0.32, 0.34, 1.5),
+    0.5s margin cubic-bezier(0.73, 0.32, 0.34, 1.5),
+    0.5s 0.2s color, 0.2s background-color;
 }
 
 .ol-openmenu:not(:hover) li.main-item {
@@ -219,7 +223,12 @@
   padding-bottom: 0;
   margin: 0;
   color: rgba(25, 25, 25, 0);
-  transition: 0.5s 0.1s height, 0.5s 0.1s padding, 0.5s 0.1s margin, 0.3s color, 0.6s visibility;
+  transition:
+    0.5s 0.1s height,
+    0.5s 0.1s padding,
+    0.5s 0.1s margin,
+    0.3s color,
+    0.6s visibility;
   z-index: 50;
 }
 
