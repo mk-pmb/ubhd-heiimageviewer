@@ -680,12 +680,13 @@ class ImageBase {
     const filteredLayers = [];
     for (let i = 0; i < heiViewerLayers.length; i++) {
       const current = heiViewerLayers[i];
-      const layerName = current.name;
-      if (layerName == name || name == null) {
+      const deleteCurrent = ((!name) // Deleting all layers.
+        || (current.name === name)); // Deleting a specific layer.
+      if (deleteCurrent) {
         map.removeLayer(current.mapLayer);
-        continue;
+      } else {
+        filteredLayers.push(current);
       }
-      filteredLayers.push(current);
     }
     this.heiViewerLayers = filteredLayers;
   }
