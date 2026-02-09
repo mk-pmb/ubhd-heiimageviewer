@@ -159,10 +159,10 @@ class ImageBase {
     }
   }
 
-  async  initialize() {
+  async initialize() {
     const { images } = this;
     /* IIIF ? */
-    if (images.length == 1 && images[0].endsWith('info.json')) {
+    if ((images.length === 1) && images[0].endsWith('info.json')) {
       const imageInfoUrl = images[0];
       return this.#fetchIIIFInfo(imageInfoUrl).then((imgLayer) => {
         this.imageLayers.push(imgLayer);
@@ -170,14 +170,14 @@ class ImageBase {
       });
     }
     /* NORMAL IMG URL */
-    if (this.sizes == null) {
+    if (!this.sizes) {
       this.sizes = await this.#checkSizes();
     }
-    try {
-      if (this.sizes.length != images.length) throw 1;
-    } catch (e) {
-      console.error('The sizes and images arrays must be the same length');
-      return;
+    if (!Array.isArray(this.sizes)) {
+      throw new TypeError('Expected sizes to be an array!');
+    }
+    if (this.sizes.length !== images.length) {
+      throw new Error('The sizes and images arrays must be the same length!');
     }
 
     /* Sort the images from smallest to biggest */
@@ -202,13 +202,13 @@ class ImageBase {
     }));
 
     /* Create Image Layers */
-    for (let i = 0; i < this.images.length; i++) {
+    for (let i = 0; i < this.images.length; i += 1) {
       const source = new Static({
         url: this.images[i],
         projection,
         imageExtent: extent,
       });
-      if (i == 0) {
+      if (i === 0) {
         this.overviewLayer = new ImageLayer({
           source,
         });
@@ -318,14 +318,14 @@ class ImageBase {
     const viewer = this;
     const { selectedFeature } = viewer;
     viewer.map.on('pointermove', (e) => {
-      for (let i = 0; i < viewer.hoveredFeatures.length; i++) {
+      for (let i = 0; i < viewer.hoveredFeatures.length; i += 1) {
         const hoveredFeature = viewer.hoveredFeatures[i];
         if (hoveredFeature !== null) {
           let isSelected = false;
           selectedFeature.forEach((sf) => {
-            if (hoveredFeature.id_ == sf.id_) { isSelected = true; }
+            if (hoveredFeature.id_ === sf.id_) { isSelected = true; }
           });
-          if (isSelected == true) { continue; }
+          if (isSelected) { continue; }
           const { color } = hoveredFeature.get('properties');
           const correspLayerName = hoveredFeature.get('properties').layerName;
           const correspLayer = viewer.#findFeatureLayer(correspLayerName)[0];
@@ -335,12 +335,12 @@ class ImageBase {
       }
       viewer.hoveredFeatures = [];
       viewer.map.forEachFeatureAtPixel(e.pixel, function (f) {
-        if (f.id_ == undefined) { return; }
+        if (!f.id_) { return; }
         let isSelected = false;
         selectedFeature.forEach((sf) => {
-          if (f.id_ == sf.id_) { isSelected = true; }
+          if (f.id_ === sf.id_) { isSelected = true; }
         });
-        if (isSelected == true) { return; }
+        if (isSelected) { return; }
         const { color } = f.get('properties');
         const correspLayerName = f.get('properties').layerName;
         const correspLayer = viewer.#findFeatureLayer(correspLayerName)[0];
@@ -396,7 +396,7 @@ class ImageBase {
     map.on('pointermove', function (e) {
       const featuresAtPixel = map.getFeaturesAtPixel(e.pixel);
       const numFeat = featuresAtPixel.length;
-      for (let i = 0; i < numFeat; i++) {
+      for (let i = 0; i < numFeat; i += 1) {
         const f = featuresAtPixel[i];
         if (!enterF.includes(f)) {
           enterF.push(f);
@@ -404,10 +404,10 @@ class ImageBase {
         }
       }
       leaveF = enterF.filter(x => !featuresAtPixel.includes(x));
-      for (let i = 0; i < leaveF.length; i++) {
+      for (let i = 0; i < leaveF.length; i += 1) {
         const f = leaveF[i];
         outFeature(f);
-        enterF = enterF.filter(x => x.id_ != f.id_);
+        enterF = enterF.filter(x => x.id_ !== f.id_);
       }
       leaveF = [];
     });
@@ -421,14 +421,14 @@ class ImageBase {
     const { map } = this;
     map.on('click', function (e) {
       const featuresAtPixel = map.getFeaturesAtPixel(e.pixel);
-      for (let i = 0; i < featuresAtPixel.length; i++) {
+      for (let i = 0; i < featuresAtPixel.length; i += 1) {
         const f = featuresAtPixel[i];
         clickFunction(f);
       }
     });
   }
 
-  createInitialView(initialResolution = null) {
+  createInitialView(initialResolution) {
     const viewer = this;
     const size = viewer.map.getSize();
     const canvasWidth = size[0];
@@ -441,7 +441,7 @@ class ImageBase {
     const h = imageHeight / canvasHeight;
     const fullResolution = Math.max(w, h);
     viewer.map.set('fullResolution', fullResolution);
-    if (initialResolution == null) {
+    if (initialResolution === undefined) {
       initialResolution = (() => {
         switch (viewer.zoom) {
           case variables.ZOOM_COVER:
@@ -525,7 +525,7 @@ class ImageBase {
     const { map } = this;
     const view = map.getView();
     const mapSize = map.getSize();
-    if (mapSize == '0,0') {
+    if (String(mapSize) === '0,0') {
       /* When the map was not visible, the size is 0,0 and we need to
         calculate it as if it was opened for the first time */
       map.updateSize();
@@ -560,7 +560,7 @@ class ImageBase {
 
   #findFeatureLayer(name) {
     this.map.getLayers();
-    const found = this.heiViewerLayers.filter(x => x.getName() == name);
+    const found = this.heiViewerLayers.filter(x => x.getName() === name);
     return found;
   }
 
@@ -572,8 +572,7 @@ class ImageBase {
     const layers = this.heiViewerLayers;
     for (const layer of layers) {
       const f = layer.getMapLayer().getSource().getFeatureById(id);
-      if (f == null) continue;
-      return [f, layer];
+      if (f) { return [f, layer]; }
     }
     return false;
   }
@@ -678,7 +677,7 @@ class ImageBase {
     const { map } = this;
     const { heiViewerLayers } = this;
     const filteredLayers = [];
-    for (let i = 0; i < heiViewerLayers.length; i++) {
+    for (let i = 0; i < heiViewerLayers.length; i += 1) {
       const current = heiViewerLayers[i];
       const deleteCurrent = ((!name) // Deleting all layers.
         || (current.name === name)); // Deleting a specific layer.
@@ -696,15 +695,15 @@ class ImageBase {
    * @return {heiImageViewer/Layer}
    * */
   getLayer(name) {
-    if (name == null) {
+    if (!name) {
       console.warn('No name provided in call to getLayer().');
       return null;
     }
     const { heiViewerLayers } = this;
-    for (let i = 0; i < heiViewerLayers.length; i++) {
+    for (let i = 0; i < heiViewerLayers.length; i += 1) {
       const current = heiViewerLayers[i];
       const layerName = current.name;
-      if (layerName == name) {
+      if (layerName === name) {
         return current;
       }
     }
@@ -722,7 +721,7 @@ class ImageBase {
     const { color } = layerObj;
 
     let featureCollection = [];
-    if (undefined != layerObj.features) {
+    if (layerObj.features) {
       featureCollection = parseShapes(layerObj, this.projection);
     }
 
@@ -781,7 +780,7 @@ class ImageBase {
    * @param {Array} annotations - An array of Layers.
    * */
   addLayers(annotations) {
-    for (let i = 0; i < annotations.length; i++) {
+    for (let i = 0; i < annotations.length; i += 1) {
       this.addLayer(annotations[i], i + 1);
     }
   }
