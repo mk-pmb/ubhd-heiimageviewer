@@ -3,10 +3,11 @@ import { Circle, GeometryCollection, LineString, Polygon } from 'ol/geom.js';
 import { Collection, Feature } from 'ol';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { getCenter, getWidth, getHeight } from 'ol/extent.js';
+import getOwn from 'getown';
 
 import logger from './logger.js';
 
-const { cerr } = logger;
+const { cerr, cwarn } = logger;
 
 
 function negateY(xy) { return [xy[0], -xy[1]]; }
@@ -159,53 +160,49 @@ function convertTeiSource(source, coordDivisor = 1) {
   return [new Polygon(coordinates)];
 }
 
+
+const shapeConverters = {};
+
+
 function convertSvgSource(source, imgWidth, coordDivisor) {
   const trace = 'convertSvgSource: ';
   const divisor = (+coordDivisor) || 1;
   if (!Number.isFinite(divisor)) {
     throw new TypeError(trace + 'Bad coordDivisor: ' + coordDivisor);
   }
-  const svgPrimitiveContainers = source.children[0].children;
+  const svgPrimitiveContainers = Array.from(source.children[0].children);
   const svgPrimitiveTypes = [];
   const svgWidth = source.children[0].getAttribute('width');
   const scaleFactor = imgWidth / svgWidth;
   const svgGeometry = [];
-  for (const svgPrimitiveContainer of svgPrimitiveContainers) {
-    const svgPrimitiveType = svgPrimitiveContainer.nodeName;
-    svgPrimitiveTypes.push(svgPrimitiveType);
-    let geo;
-    switch (svgPrimitiveType) {
-      case 'rect':
-        geo = convertRect(svgPrimitiveContainer, divisor);
-        break;
-      case 'polygon':
-        geo =  convertPolygon(svgPrimitiveContainer, divisor);
-        break;
-      case 'line':
-        geo = convertLine(svgPrimitiveContainer, divisor);
-        break;
-      case 'polyline':
-        geo = convertPolyline(svgPrimitiveContainer, divisor);
-        break;
-      case 'circle':
-        geo = convertCircle(svgPrimitiveContainer, divisor);
-        break;
-      case 'ellipse':
-        geo = convertEllipse(svgPrimitiveContainer, divisor);
-        break;
-      default:
-        console.warn('Unknown svg primitive.');
-        break;
-    }
-    geo.scale(scaleFactor, scaleFactor, [0, 0]);
-    svgGeometry.push(geo);
+
+  function softFail(why, details) {
+    const err = new Error(why);
+    Object.assign(err, { source, svgWidth }, details);
+    cwarn(err);
+    softFail.accum.push(err);
   }
+  softFail.accum = [];
+
+  svgPrimitiveContainers.forEach(function convertOneContainer(elem) {
+    const tagName = elem.nodeName;
+    svgPrimitiveTypes.push(tagName);
+    const conv = getOwn(shapeConverters, tagName);
+    if (!conv) { return softFail('Unsupported SVG primitive', { elem }); }
+    const geometry = conv(elem, divisor);
+    if (!geometry) {
+      return softFail('Empty geometry from conversion.', { elem, geometry });
+    }
+    geometry.scale(scaleFactor, scaleFactor, [0, 0]);
+    svgGeometry.push(geometry);
+  });
+
+  svgGeometry.errors = (softFail.accum.length && softFail.accum);
   return [svgGeometry, svgPrimitiveTypes];
 }
 
 
-function convertRect(rect, divisor) {
-
+shapeConverters.rect = function convertRect(rect, divisor) {
   const y = Number(rect.getAttribute('y')) / divisor;
   const x = Number(rect.getAttribute('x')) / divisor;
   const width = Number(rect.getAttribute('width')) / divisor;
@@ -221,16 +218,18 @@ function convertRect(rect, divisor) {
     ],
   ]);
   return obj;
-}
+};
 
-function convertPolygon(poly, divisor) {
+
+shapeConverters.polygon = function convertPolygon(poly, divisor) {
   const coordinates = getPointCoordsFromPrimitive(
     poly.getAttribute('points'), divisor);
   const obj = new Polygon([coordinates]);
   return obj;
-}
+};
 
-function convertLine(line, divisor) {
+
+shapeConverters.line = function convertLine(line, divisor) {
   /* The svg line-Element contains only two points (line start and end);
     if more points are used, see function convertPolyline(). */
   const x1 = Number(line.getAttribute('x1')) / divisor;
@@ -243,9 +242,10 @@ function convertLine(line, divisor) {
     [x2, y2],
   ]);
   return obj;
-}
+};
 
-function convertPolyline(polyline, divisor) {
+
+shapeConverters.polyline = function convertPolyline(polyline, divisor) {
   /* The svg polyline-Element contains two or more points which together form
     a single line. If separate lines are to be connected to a single shape,
     see ...XXX */
@@ -253,10 +253,10 @@ function convertPolyline(polyline, divisor) {
     polyline.getAttribute('points'), divisor);
   const obj = new LineString(coordinates);
   return obj;
-}
+};
 
-function convertCircle(circle, divisor) {
 
+shapeConverters.circle = function convertCircle(circle, divisor) {
   const cx = Number(circle.getAttribute('cx')) / divisor;
   const cy = Number(circle.getAttribute('cy')) / divisor;
   const r = Number(circle.getAttribute('r')) / divisor;
@@ -264,9 +264,10 @@ function convertCircle(circle, divisor) {
   const center =  [cx, cy];
   const obj = new Circle(center, r);
   return obj;
-}
+};
 
-function convertEllipse(ellipse, divisor = 1) {
+
+shapeConverters.ellipse = function convertEllipse(ellipse, divisor = 1) {
   const cx = Number(ellipse.getAttribute('cx')) / divisor;
   const cy = Number(ellipse.getAttribute('cy')) / divisor;
   const center =  [cx, cy];
@@ -277,7 +278,8 @@ function convertEllipse(ellipse, divisor = 1) {
   const obj = fromCircle(circle, 64);
   obj.scale(rx / r, ry / r);
   return obj;
-}
+};
+
 
 export function ellipseGeometryFunction(coordinates, geometry) {
   const center = coordinates[0];
@@ -293,6 +295,7 @@ export function ellipseGeometryFunction(coordinates, geometry) {
   return geometry;
 }
 
+
 function getPointCoordsFromPrimitive(points, divisor) {
   // const points = svgPrimitiveContainer.getAttribute("points");
   const coordClusters = points.split(' ');
@@ -306,11 +309,13 @@ function getPointCoordsFromPrimitive(points, divisor) {
   return coordinates;
 }
 
+
 function parseSvg(svgStr) {
   const parser = new DOMParser();
   const svgXml = parser.parseFromString(svgStr, 'text/xml');
   return svgXml;
 }
+
 
 export function calculateCenter(geometry) {
   let center;
