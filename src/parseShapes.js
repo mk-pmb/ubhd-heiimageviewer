@@ -4,6 +4,9 @@ import { Collection, Feature } from 'ol';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { getCenter, getWidth, getHeight } from 'ol/extent.js';
 
+function negateY(xy) { return [xy[0], -xy[1]]; }
+
+
 /** This is the main function to parse the vector shapes to be displayed in
  * the map. It creates the Feature Collection to add to the source.
  * @param {Array} annotations - Annotations object
@@ -16,13 +19,7 @@ const EX = function parseShapes(annotations, projection) {
   const { color } = annotations;
   /* Neccesary to move feature coordinates from bottom to top */
   const invertedProjection = new Projection({});
-  addCoordinateTransforms(projection, invertedProjection,
-    function (coordinate) {
-      return [coordinate[0], -coordinate[1]];
-    },
-    function (coordinate) {
-      return [coordinate[0], -coordinate[1]];
-    });
+  addCoordinateTransforms(projection, invertedProjection, negateY, negateY);
   const features = [];
   for (let i = 0; i < featuresOrig.length; i += 1) {
     const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color,
