@@ -342,9 +342,9 @@ export function calculateCenter(geometry) {
       const dy = coordinate[1] - center[1];
       return dx * dx + dy * dy;
     });
-    minRadius = Math.sqrt(Math.max.apply(Math, sqDistances)) / 3;
+    minRadius = Math.sqrt(Math.max(...sqDistances)) / 3;
   } else {
-    minRadius =            Math.max(
+    minRadius = Math.max(
       getWidth(geometry.getExtent()),
       getHeight(geometry.getExtent()),
     ) / 3;
