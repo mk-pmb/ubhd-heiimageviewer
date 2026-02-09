@@ -18,17 +18,18 @@ function negateY(xy) { return [xy[0], -xy[1]]; }
  * @return {Collection<Feature>} */
 const EX = function parseShapes(annotations, projection) {
   const featuresOrig = annotations.features;
-  const layerType = annotations.type;
-  const layerName = annotations.name;
+  const customFeatOpt = {
+    layerType: annotations.type,
+    layerName: annotations.name,
+    color: annotations.color,
+  };
   const imgWidth = projection.getExtent()[2];
-  const { color } = annotations;
   /* Neccesary to move feature coordinates from bottom to top */
   const invertedProjection = new Projection({});
   addCoordinateTransforms(projection, invertedProjection, negateY, negateY);
   const features = [];
   for (let i = 0; i < featuresOrig.length; i += 1) {
-    const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color,
-      layerName);
+    const feats = createFeatures(featuresOrig[i], customFeatOpt, imgWidth);
     for (const featureElement of feats) {
       const geometry = featureElement.getGeometry();
       geometry.transform(projection, invertedProjection);
@@ -39,13 +40,18 @@ const EX = function parseShapes(annotations, projection) {
 };
 
 
-function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
-  const featOptions = {};
-  const multiFeature = feat.multiFeature ? feat.multiFeature : false;
-  featOptions.featName = feat.name;
-  featOptions.layerName = layerName;
-  featOptions.layerType = layerType;
-  featOptions.color = feat.color ? feat.color : color;
+EX.defaultFeatureColor = '#f00';
+
+
+function createFeatures(feat, customFeatOpt, imgWidth) {
+  const featOptions = {
+    featName: feat.name,
+    layerName: '',
+    layerType: '',
+    ...customFeatOpt,
+  };
+  featOptions.color = (feat.color || featOptions.color
+    || EX.defaultFeatureColor);
 
   function recordError(err, details) {
     Object.assign(err, recordError.traceHints, details);
@@ -107,7 +113,7 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
 
   const result = [];
   if (geometries.length > 1) {
-    if (multiFeature) {
+    if (feat.multiFeature) {
       featOptions.featureGeometry = new GeometryCollection(geometries);
       featOptions.featureType = 'collection';
       const feature = createSingleFeature(featOptions);
