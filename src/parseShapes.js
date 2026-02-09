@@ -4,6 +4,11 @@ import { Collection, Feature } from 'ol';
 import { fromCircle } from 'ol/geom/Polygon.js';
 import { getCenter, getWidth, getHeight } from 'ol/extent.js';
 
+import logger from './logger.js';
+
+const { cerr } = logger;
+
+
 function negateY(xy) { return [xy[0], -xy[1]]; }
 
 
@@ -41,29 +46,63 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
   featOptions.layerName = layerName;
   featOptions.layerType = layerType;
   featOptions.color = feat.color ? feat.color : color;
+
+  function recordError(err, details) {
+    Object.assign(err, recordError.traceHints, details);
+    cerr('createFeatures:', err);
+    recordError.accum.push(err);
+    return err;
+  }
+  recordError.accum = [];
+  recordError.traceHints = { commonFeatureOptions: featOptions };
+
   const { shapes } = feat;
   const allGeometriesInThisFeature = [];
   let allTypesInThisFeature = [];
   for (let i = 0; i < shapes.length; i += 1) {
     const shape = shapes[i];
+    recordError.traceHints.affectedShapeIdx = i;
+    recordError.traceHints.affectedShape = shape;
     const { format } = shape;
     let { source } = shape;
     let geometry;
     switch (format) {
       case 'svg':
         if (typeof source === 'string') {
-          source = parseSvg(source);
+          try {
+            source = parseSvg(source);
+          } catch (errParseSvg) {
+            recordError(errParseSvg, { step: 'parseSvg' });
+            break;
+          }
         }
-        [geometry, allTypesInThisFeature] = convertSvgSource(source, imgWidth);
+        try {
+          [geometry, allTypesInThisFeature] = convertSvgSource(source,
+            imgWidth); // :TODO: Should we append to allTypesIn… instead?
+        } catch (errConvSvg) {
+          recordError(errConvSvg, {
+            step: 'convertSvgSource',
+            parsedSvgSource: source,
+          });
+          break;
+        }
         break;
       case 'tei':
-        geometry = convertTeiSource(source);
+        try {
+          geometry = convertTeiSource(source);
+        } catch (errConvTei) {
+          recordError(errConvTei, { step: 'convertTeiSource' });
+        }
         break;
       default:
         throw new Error('Unsupported feature format: ' + format);
     }
+    if (!geometry) { throw new Error('False-y geometry!'); }
     allGeometriesInThisFeature.push(geometry);
   }
+  delete recordError.traceHints.affectedShapeIdx;
+  delete recordError.traceHints.affectedShape;
+
   const geometries = allGeometriesInThisFeature.flat();
 
   const result = [];
@@ -88,6 +127,7 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
     const feature = createSingleFeature(featOptions);
     result.push(feature);
   }
+  result.errors = (recordError.accum.length && recordError.accum);
   return result;
 }
 
@@ -259,9 +299,9 @@ function getPointCoordsFromPrimitive(points, divisor) {
   return coordinates;
 }
 
-function parseSvg(svg) {
+function parseSvg(svgStr) {
   const parser = new DOMParser();
-  const svgXml = parser.parseFromString(svg, 'text/xml');
+  const svgXml = parser.parseFromString(svgStr, 'text/xml');
   return svgXml;
 }
 
