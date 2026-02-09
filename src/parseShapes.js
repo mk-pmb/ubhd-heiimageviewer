@@ -161,8 +161,12 @@ function convertTeiSource(source, coordDivisor = 1) {
   return [new Polygon(coordinates)];
 }
 
-function convertSvgSource(source, imgWidth, coordDivisor = 1) {
-  const divisor = Number(coordDivisor);
+function convertSvgSource(source, imgWidth, coordDivisor) {
+  const trace = 'convertSvgSource: ';
+  const divisor = (+coordDivisor) || 1;
+  if (!Number.isFinite(divisor)) {
+    throw new TypeError(trace + 'Bad coordDivisor: ' + coordDivisor);
+  }
   const svgPrimitiveContainers = source.children[0].children;
   const svgPrimitiveTypes = [];
   const svgWidth = source.children[0].getAttribute('width');
