@@ -34,6 +34,7 @@ const EX = function parseShapes(annotations, projection) {
     const feats = createFeatures(origFeat, customFeatOpt, imgWidth);
     feats.forEach(function transformFeature(featureElement) {
       const geometry = featureElement.getGeometry();
+      if (!geometry) { return; }
       geometry.transform(projection, invertedProjection);
       features.push(featureElement);
     });
@@ -57,7 +58,6 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
 
   function recordError(err, details) {
     Object.assign(err, recordError.traceHints, details);
-    cerr('createFeatures:', err);
     recordError.accum.push(err);
     return err;
   }
@@ -104,7 +104,7 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
       default:
         throw new Error('Unsupported feature format: ' + format);
     }
-    if (!geometry) { throw new Error('False-y geometry!'); }
+    if (!geometry) { return recordError(new Error('False-y geometry!')); }
     allGeometriesInThisFeature.push(geometry);
   });
   delete recordError.traceHints.affectedShapeIdx;
@@ -135,6 +135,7 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
     result.push(feature);
   }
   result.errors = (recordError.accum.length && recordError.accum);
+  if (result.errors) { cwarn('createFeatures: Failures:', result.errors); }
   return result;
 }
 
@@ -170,7 +171,15 @@ function convertSvgSource(source, imgWidth, coordDivisor) {
   if (!Number.isFinite(divisor)) {
     throw new TypeError(trace + 'Bad coordDivisor: ' + coordDivisor);
   }
-  const svgPrimitiveContainers = Array.from(source.children[0].children);
+
+  const xmlDoc = (source.documentElement || false);
+  const rootTagName = String(xmlDoc.nodeName || '').toLowerCase();
+  if (!rootTagName) { throw new Error(trace + 'Found no XML root node!'); }
+  if (rootTagName === 'parsererror') {
+    throw new Error(trace + xmlDoc.innerHTML);
+  }
+
+  const svgPrimitiveContainers = Array.from(xmlDoc.children);
   const svgPrimitiveTypes = [];
   const svgWidth = source.children[0].getAttribute('width');
   const scaleFactor = imgWidth / svgWidth;
