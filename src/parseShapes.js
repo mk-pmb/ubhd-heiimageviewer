@@ -28,16 +28,15 @@ const EX = function parseShapes(annotations, projection) {
   const invertedProjection = new Projection({}); /*
     In OpenLayers, the Y axis points up, but in SVG, it points down. */
   addCoordinateTransforms(projection, invertedProjection, negateY, negateY);
-
   const features = [];
-  for (let i = 0; i < featuresOrig.length; i += 1) {
-    const feats = createFeatures(featuresOrig[i], customFeatOpt, imgWidth);
-    for (const featureElement of feats) {
+  featuresOrig.forEach(function parseAndTransformFeat(origFeat) {
+    const feats = createFeatures(origFeat, customFeatOpt, imgWidth);
+    feats.forEach(function transformFeature(featureElement) {
       const geometry = featureElement.getGeometry();
       geometry.transform(projection, invertedProjection);
       features.push(featureElement);
-    }
-  }
+    });
+  });
   return new Collection(features);
 };
 
@@ -67,9 +66,8 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
   const { shapes } = feat;
   const allGeometriesInThisFeature = [];
   let allTypesInThisFeature = [];
-  for (let i = 0; i < shapes.length; i += 1) {
-    const shape = shapes[i];
-    recordError.traceHints.affectedShapeIdx = i;
+  shapes.forEach(function createOneShapeFeature(shape, shIdx) {
+    recordError.traceHints.affectedShapeIdx = shIdx;
     recordError.traceHints.affectedShape = shape;
     const { format } = shape;
     let { source } = shape;
@@ -107,7 +105,7 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
     }
     if (!geometry) { throw new Error('False-y geometry!'); }
     allGeometriesInThisFeature.push(geometry);
-  }
+  });
   delete recordError.traceHints.affectedShapeIdx;
   delete recordError.traceHints.affectedShape;
 
@@ -121,13 +119,13 @@ function createFeatures(feat, customFeatOpt, imgWidth) {
       const feature = createSingleFeature(featOptions);
       result.push(feature);
     } else {
-      for (let i = 0; i < geometries.length; i += 1) {
-        featOptions.featureGeometry = geometries[i];
-        featOptions.featureType = allTypesInThisFeature[i];
-        featOptions.featName += '_' + i;
+      geometries.forEach(function convertOneGeom(origGeom, geomIdx) {
+        featOptions.featureGeometry = origGeom;
+        featOptions.featureType = allTypesInThisFeature[geomIdx];
+        featOptions.featName += '_' + geomIdx;
         const feature = createSingleFeature(featOptions);
         result.push(feature);
-      }
+      });
     }
   } else {
     featOptions.featureGeometry = geometries[0];
