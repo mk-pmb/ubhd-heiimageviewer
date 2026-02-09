@@ -24,7 +24,7 @@ const EX = function parseShapes(annotations, projection) {
       return [coordinate[0], -coordinate[1]];
     });
   const features = [];
-  for (let i = 0; i < featuresOrig.length; i++) {
+  for (let i = 0; i < featuresOrig.length; i += 1) {
     const feats = createFeatures(featuresOrig[i], layerType, imgWidth, color,
       layerName);
     for (const featureElement of feats) {
@@ -47,7 +47,7 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
   const { shapes } = feat;
   const allGeometriesInThisFeature = [];
   let allTypesInThisFeature = [];
-  for (let i = 0; i < shapes.length; i++) {
+  for (let i = 0; i < shapes.length; i += 1) {
     const shape = shapes[i];
     const { format } = shape;
     let { source } = shape;
@@ -77,7 +77,7 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
       const feature = createSingleFeature(featOptions);
       result.push(feature);
     } else {
-      for (let i = 0; i < geometries.length; i++) {
+      for (let i = 0; i < geometries.length; i += 1) {
         featOptions.featureGeometry = geometries[i];
         featOptions.featureType = allTypesInThisFeature[i];
         featOptions.featName += '_' + i;
@@ -281,7 +281,7 @@ export function calculateCenter(geometry) {
     coordinates.forEach(function (coordinate) {
       x += coordinate[0];
       y += coordinate[1];
-      i++;
+      i += 1;
     });
     center = [x / i, y / i];
   } else if (type === 'LineString') {
