@@ -298,12 +298,12 @@ function getPointCoordsFromPrimitive(points, divisor) {
   // const points = svgPrimitiveContainer.getAttribute("points");
   const coordClusters = points.split(' ');
   const coordinates = [];
-  for (const item of coordClusters) {
-    const xy = item.split(',');
+  coordClusters.forEach(function splitAndDivide(pair) {
+    const xy = pair.split(',');
     const x = Number(xy[0]) / divisor;
     const y = Number(xy[1]) / divisor;
-    const len = coordinates.push([x, y]);
-  }
+    coordinates.push([x, y]);
+  });
   return coordinates;
 }
 
@@ -323,7 +323,7 @@ export function calculateCenter(geometry) {
     let y = 0;
     let i = 0;
     coordinates = geometry.getCoordinates()[0].slice(1);
-    coordinates.forEach(function (coordinate) {
+    coordinates.forEach(function sumCoordinates(coordinate) {
       x += coordinate[0];
       y += coordinate[1];
       i += 1;
@@ -337,7 +337,7 @@ export function calculateCenter(geometry) {
   }
   let sqDistances;
   if (coordinates) {
-    sqDistances = coordinates.map(function (coordinate) {
+    sqDistances = coordinates.map(function calculateSquareDistance(coordinate) {
       const dx = coordinate[0] - center[0];
       const dy = coordinate[1] - center[1];
       return dx * dx + dy * dy;
