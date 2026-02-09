@@ -8,7 +8,7 @@ import { getCenter, getWidth, getHeight } from 'ol/extent.js';
  * the map. It creates the Feature Collection to add to the source.
  * @param {Array} annotations - Annotations object
  * @return {Collection<Feature>} */
-export default (annotations, projection) => {
+const EX = function parseShapes(annotations, projection) {
   const featuresOrig = annotations.features;
   const layerType = annotations.type;
   const layerName = annotations.name;
@@ -93,6 +93,7 @@ function createFeatures(feat, layerType, imgWidth, color = '#f00', layerName) {
   }
   return result;
 }
+
 
 function createSingleFeature(options) {
   const feature = new Feature({
@@ -310,3 +311,8 @@ export function calculateCenter(geometry) {
     sqDistances,
   };
 }
+
+
+
+
+export default EX;
