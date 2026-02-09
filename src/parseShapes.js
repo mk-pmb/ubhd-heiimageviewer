@@ -24,9 +24,11 @@ const EX = function parseShapes(annotations, projection) {
     color: annotations.color,
   };
   const imgWidth = projection.getExtent()[2];
-  /* Neccesary to move feature coordinates from bottom to top */
-  const invertedProjection = new Projection({});
+
+  const invertedProjection = new Projection({}); /*
+    In OpenLayers, the Y axis points up, but in SVG, it points down. */
   addCoordinateTransforms(projection, invertedProjection, negateY, negateY);
+
   const features = [];
   for (let i = 0; i < featuresOrig.length; i += 1) {
     const feats = createFeatures(featuresOrig[i], customFeatOpt, imgWidth);
