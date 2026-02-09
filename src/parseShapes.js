@@ -286,11 +286,8 @@ export function ellipseGeometryFunction(coordinates, geometry) {
   const circle = new Circle(center, radius);
   const polygon = fromCircle(circle, 64);
   polygon.scale(rx / radius, ry / radius);
-  if (!geometry) {
-    geometry = polygon;
-  } else {
-    geometry.setCoordinates(polygon.getCoordinates());
-  }
+  if (!geometry) { return polygon; }
+  geometry.setCoordinates(polygon.getCoordinates());
   return geometry;
 }
 
